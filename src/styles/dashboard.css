@@ -1,0 +1,151 @@
+/* ===============================
+   🎨 Variables base
+================================ */
+:root {
+  --bg-color: #f7f7f7;
+  --bubble-gold: #c9a635;
+  --bubble-gray: #7a7a7a;
+  --bubble-white: #ffffff;
+  --text-color: #000;
+  --card-bg: #ffffff;
+}
+
+body.night {
+  --bg-color: #0a0a0a;
+  --bubble-gold: #ffd700;
+  --bubble-gray: #aaaaaa;
+  --bubble-white: #eaeaea;
+  --text-color: #fff;
+  --card-bg: #1a1a1a;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
+  background: var(--bg-color);
+  transition: background 0.5s, color 0.5s;
+}
+
+/* ===============================
+   🌌 Fondo animado
+================================ */
+.background-bubbles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-color);
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.5;
+  filter: blur(8px);
+  animation: float 10s infinite;
+}
+
+@keyframes float {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(var(--x-move), var(--y-move)) scale(1.2); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* ===============================
+   🔘 Botón de modo
+================================ */
+.toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bubble-gold);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 100;
+  transition: background 0.3s;
+}
+body.night .toggle-btn {
+  background: var(--bubble-gray);
+}
+
+/* ===============================
+   Sidebar
+================================ */
+.sidebar {
+  width: 250px;
+  background: rgba(10, 10, 20, 0.9);
+  color: #fff;
+  padding: 20px;
+  z-index: 10;
+}
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+.sidebar ul li {
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.sidebar ul li.active,
+.sidebar ul li:hover {
+  background: linear-gradient(90deg, #ffcc33, #ff9900);
+  color: #000;
+  font-weight: bold;
+}
+.logout {
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #ff4444;
+  color: white;
+  cursor: pointer;
+}
+
+/* ===============================
+   Main content
+================================ */
+.main {
+  flex: 1;
+  padding: 20px;
+  z-index: 10;
+  color: white;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+.card {
+  background: rgba(20, 20, 30, 0.9);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 20px;
+}
+.chart {
+  background: rgba(20, 20, 30, 0.9);
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="../styles/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="background-bubbles" id="background">
+<!-- Botón día/noche -->
+        <button class="toggle-btn" id="toggle">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>Panel Admin</h2>
+      <ul>
+        <li class="active">Dashboard</li>
+        <li>Gestión de Usuarios</li>
+        <li>Gestión de Clientes</li>
+        <li>Inventario</li>
+        <li>Punto de Venta</li>
+        <li>Reportes</li>
+        <li>Configuración</li>
+      </ul>
+      <button class="logout">Cerrar Sesión</button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <h1>Dashboard Administrativo</h1>
+
+      <div class="cards">
+        <div class="card">Miembros Totales: 1247</div>
+        <div class="card">Ingresos Mensuales: $45,680</div>
+        <div class="card">Suscripciones Activas: 1,123</div>
+        <div class="card">Pagos Pendientes: 24</div>
+      </div>
+
+      <div class="charts">
+        <div class="chart">📊 Gráfico 1</div>
+        <div class="chart">📈 Gráfico 2</div>
+      </div>
+    </main>
+
+  </div>
+  <script src="dashboard.html"></script>
+</body>
+</html>

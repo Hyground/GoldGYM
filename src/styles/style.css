@@ -1,0 +1,212 @@
+* {
+  box-sizing: border-box;
+}
+/* ===============================
+   🎨 Variables base
+================================ */
+:root {
+  --bg-color: #f7f7f7;
+  --bubble-gold: #c9a635;
+  --bubble-gray: #7a7a7a;
+  --bubble-white: #ffffff;
+  --text-color: #000;
+  --card-bg: #ffffff;
+}
+
+body.night {
+  --bg-color: #0a0a0a;
+  --bubble-gold: #ffd700;
+  --bubble-gray: #aaaaaa;
+  --bubble-white: #eaeaea;
+  --text-color: #fff;
+  --card-bg: #1a1a1a;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
+  background: var(--bg-color);
+  transition: background 0.5s, color 0.5s;
+}
+
+/* ===============================
+   🌌 Fondo animado
+================================ */
+.background-bubbles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-color);
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.5;
+  filter: blur(8px);
+  animation: float 10s infinite;
+}
+
+@keyframes float {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(var(--x-move), var(--y-move)) scale(1.2); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* ===============================
+   🔘 Botón de modo
+================================ */
+.toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bubble-gold);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 100;
+  transition: background 0.3s;
+}
+body.night .toggle-btn {
+  background: var(--bubble-gray);
+}
+
+/* ===============================
+   🔐 Caja de login
+================================ */
+.login-box {
+  position: relative;
+  z-index: 10;
+  background: var(--card-bg);
+  padding: 40px 30px;
+  border-radius: 16px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 4px 30px var(--bubble-gold);
+  animation: fadeIn 1s ease;
+  box-sizing: border-box; /* 👈 clave */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.login-box .logo {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffcc33, #ff9900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 26px;
+}
+
+.login-box h2 {
+  margin: 10px 0 5px;
+}
+.login-box p {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: gray;
+}
+
+/* Inputs */
+.input-group {
+  position: relative;
+  margin: 12px 0;
+}
+.input-group i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: gray;
+  font-size: 16px;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px 10px 12px 35px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #fff;
+}
+body:not(.night) .input-group input {
+  background: #f0f0f0;
+  color: #000;
+  border: 1px solid #ccc;
+}
+
+/* Botón login */
+.btn-login {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  font-size: 15px;
+  background: linear-gradient(90deg, #ffcc33, #ff9900);
+  color: #000;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: block;
+}
+.btn-login:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.7);
+}
+
+/* Links */
+.links {
+  margin-top: 20px;
+  font-size: 13px;
+}
+.links a {
+  color: #ffcc33;
+  text-decoration: none;
+}
+.links a:hover {
+  text-decoration: underline;
+}
+.links .highlight {
+  font-weight: bold;
+}
+
+.toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bubble-gold);
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: background 0.3s, transform 0.2s;
+}
+.toggle-btn:hover {
+  transform: scale(1.1);
+}
+body.night .toggle-btn {
+  background: var(--bubble-gray);
+}
