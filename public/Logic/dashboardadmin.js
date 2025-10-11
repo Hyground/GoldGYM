@@ -72,8 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showPersonaModal(null, section);
         } else if (section === 'membresias') {
             showMembresiaModal();
+        } else if (section === 'productos') { // Manejar FAB para productos
+            showProductModal();
         } else if (section === 'pagos') {
-            // showPagoModal(); // Si se necesita un modal para crear pagos
             alert('Funcionalidad de añadir pago no implementada aún.');
         }
     }
@@ -106,40 +107,265 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+
+    // Nueva función para llenar la barra lateral de vencimientos
+    function displayVencimientos(clientesStatus) {
+        const container = document.getElementById('vencimientos-proximos');
+        // Filtra los clientes con estado AMARILLO (próximo a vencer) o ROJO (vencido/en deuda)
+        const warningClients = clientesStatus.filter(c => c.estadoPago === 'AMARILLO' || c.estadoPago === 'ROJO');
+
+        if (warningClients.length === 0) {
+            container.innerHTML = '<p class="status-verde">¡Todos los clientes están al día!</p>';
+            return;
+        }
+
+        container.innerHTML = warningClients.map(c => {
+            const dateText = c.fechaVencimiento ? new Date(c.fechaVencimiento).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : 'N/A';
+            return `
+            <div class="vencimiento-item status-${c.estadoPago}">
+                <span>${c.nombreCompleto}</span>
+                <span class="vencimiento-date">${dateText}</span>
+            </div>
+        `;
+        }).join('');
+    }
     async function handleEdit(id, section) {
         const endpoint = section === 'membresias' ? 'planes' : section;
         try {
             const response = await fetch(`${API_BASE_URL}/${endpoint}/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error(`Error: ${response.status}`);
             const data = await response.json();
+
             if (section === 'clientes' || section === 'empleados') {
                 showPersonaModal(data, section);
             } else if (section === 'membresias') {
                 showMembresiaModal(data);
+            } else if (section === 'productos') { // Manejar edición de productos
+                showProductModal(data);
             } else if (section === 'pagos') {
                 alert('Funcionalidad de edición de pagos no implementada aún.');
             }
         } catch (error) { alert(`Error al cargar datos para edición: ${error.message}`); }
     }
 
+    function showProductModal(data = null) {
+    const isEdit = data !== null;
+    modalTitle.textContent = isEdit ? `Editar Producto: ${data.nombre}` : 'Crear Nuevo Producto';
+    
+    const defaults = {
+        nombre: '', categoria: 'SUPLEMENTO', tipoMedida: 'UNIDAD', scoopsPorEnvase: 0, precioVenta: 0.00,
+        stockCantidad: 0, stockMinimoAlerta: 0, activo: true,
+        ...(isEdit ? data : {})
+    };
+    
+    if (!userRoles.includes('ADMINISTRADOR') && !userRoles.includes('EMPLEADO')) {
+        alert("No tienes permisos para crear/editar productos.");
+        return;
+    }
+
+    modalBody.innerHTML = `
+        <form id="product-form" class="modal-form">
+            <input type="hidden" id="productId" value="${isEdit ? defaults.id : ''}">
+            <h4 class="form-title">Información Principal</h4>
+            <div class="form-grid">
+                <div class="form-group full-width"><label for="nombre">Nombre</label><input type="text" id="nombre" class="input" value="${defaults.nombre}" required></div>
+                
+                <div class="form-group"><label for="categoria">Categoría</label>
+                    <select id="categoria" class="input">
+                        <option value="SUPLEMENTO" ${defaults.categoria === 'SUPLEMENTO' ? 'selected' : ''}>Suplemento</option>
+                        <option value="BEBIDA" ${defaults.categoria === 'BEBIDA' ? 'selected' : ''}>Bebida</option>
+                        <option value="SNACK" ${defaults.categoria === 'SNACK' ? 'selected' : ''}>Snack</option>
+                        <option value="EQUIPO" ${defaults.categoria === 'EQUIPO' ? 'selected' : ''}>Equipo</option>
+                    </select>
+                </div>
+                
+                <div class="form-group"><label for="precioVenta">Precio Venta ($)</label><input type="number" id="precioVenta" class="input" value="${defaults.precioVenta || 0}" step="0.01" required></div>
+            </div>
+            
+            <h4 class="form-title">Inventario y Medidas</h4>
+            <div class="form-grid">
+                <div class="form-group"><label for="stockCantidad">Stock Actual</label><input type="number" id="stockCantidad" class="input" value="${defaults.stockCantidad || 0}" required></div>
+                <div class="form-group"><label for="stockMinimoAlerta">Stock Mínimo Alerta</label><input type="number" id="stockMinimoAlerta" class="input" value="${defaults.stockMinimoAlerta || 0}"></div>
+                
+                <div class="form-group"><label for="tipoMedida">Tipo Medida</label>
+                    <select id="tipoMedida" class="input">
+                        <option value="UNIDAD" ${defaults.tipoMedida === 'UNIDAD' ? 'selected' : ''}>Unidad (Botella, Barra)</option>
+                        <option value="ENVASE" ${defaults.tipoMedida === 'ENVASE' ? 'selected' : ''}>Envase (Proteína)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group"><label for="scoopsPorEnvase">Scoops/Porciones (si aplica)</label><input type="number" id="scoopsPorEnvase" class="input" value="${defaults.scoopsPorEnvase || 0}"></div>
+            </div>
+            
+            <div class="form-group full-width" style="margin-top: 1rem;">
+                <label><input type="checkbox" id="activo" ${defaults.activo ? 'checked' : ''}> Producto Activo (Disponible para venta)</label>
+            </div>
+            
+            <div class="modal-footer"><button type="submit" class="btn-accent">${isEdit ? 'Guardar Cambios' : 'Crear Producto'}</button></div>
+        </form>
+    `;
+    document.getElementById('product-form').addEventListener('submit', handleProductFormSubmit);
+    unifiedModal.style.display = 'flex';
+}
+
+async function handleProductFormSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const id = form.elements.productId.value;
+    const isEdit = id !== '';
+    
+    const body = {
+        nombre: form.elements.nombre.value,
+        categoria: form.elements.categoria.value,
+        precioVenta: parseFloat(form.elements.precioVenta.value),
+        stockCantidad: parseFloat(form.elements.stockCantidad.value),
+        stockMinimoAlerta: parseFloat(form.elements.stockMinimoAlerta.value),
+        tipoMedida: form.elements.tipoMedida.value,
+        // Usar parseInt y asegurar que es 0 si está vacío
+        scoopsPorEnvase: parseInt(form.elements.scoopsPorEnvase.value || 0),
+        activo: form.elements.activo.checked
+    };
+
+    const method = isEdit ? 'PUT' : 'POST';
+    const url = isEdit ? `${API_BASE_URL}/productos/${id}` : `${API_BASE_URL}/productos`;
+    
+    try {
+        const response = await fetch(url, { 
+            method, 
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
+            body: JSON.stringify(body) 
+        });
+
+        if (!response.ok) { 
+            const errorData = await response.text(); 
+            throw new Error(errorData || `Error ${response.status}`); 
+        }
+
+        alert(`Producto ${isEdit ? 'actualizado' : 'creado'} con éxito.`);
+        closeModal();
+        loadContent('productos'); 
+    } catch (error) { 
+        alert(`Error al guardar el producto: ${error.message}`); 
+    }
+}
     // --- CORE LOGIC ---
     async function loadContent(section) {
-        sectionTitle.textContent = section.charAt(0).toUpperCase() + section.slice(1);
-        contentArea.innerHTML = '<p>Cargando...</p>';
-        fab.style.display = (section === 'ventas') ? 'none' : 'block';
+    sectionTitle.textContent = section.charAt(0).toUpperCase() + section.slice(1);
+    contentArea.innerHTML = '<p>Cargando...</p>';
+    fab.style.display = (section === 'ventas') ? 'none' : 'block';
 
-        if (section === 'ventas') {
-            await setupPOSInterface();
-        } else if (section === 'pagos') {
-            await loadPagosSection();
-        } else {
-            const endpoint = section === 'membresias' ? 'planes' : section;
-            try {
-                const response = await fetch(`${API_BASE_URL}/${endpoint}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!response.ok) throw new Error(`Error: ${response.status}`);
-                displayData(await response.json(), section);
-            } catch (error) { contentArea.innerHTML = `<p>Error al cargar los datos de ${section}: ${error.message}</p>`; }
+    if (section === 'ventas') {
+        await setupPOSInterface();
+    } else if (section === 'pagos') {
+        await loadPagosSection();
+    } else if (section === 'productos') {
+        await setupProductMarket();
+    } else if (section === 'membresias') { // Lógica para Membresías
+        try {
+            // DEBE LLAMARSE AL ENDPOINT DE ANALÍTICAS QUE DEVUELVE LOS PLANES
+            const response = await fetch(`${API_BASE_URL}/planes/analiticas`, { 
+                headers: { 'Authorization': `Bearer ${token}` } 
+            });
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            // Usamos la función con el objeto PlanAnaliticasDTO
+            displayMembresias(await response.json()); 
+        } catch (error) { 
+            contentArea.innerHTML = `<p>Error al cargar los datos de ${section}: ${error.message}</p>`; 
         }
+    } else {
+        // Lógica para Clientes/Empleados (que usa displayTable)
+        const endpoint = section; 
+        try {
+            const response = await fetch(`${API_BASE_URL}/${endpoint}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            displayTable(await response.json(), section);
+        } catch (error) { contentArea.innerHTML = `<p>Error al cargar los datos de ${section}: ${error.message}</p>`; }
+    }
+}
+
+    async function setupProductMarket() {
+        contentArea.innerHTML = `
+        <div class="market-container">
+            <div class="market-sidebar">
+                <div class="card market-filters">
+                    <h3>Filtros y Búsqueda</h3>
+                    <div class="form-group full-width">
+                        <label for="search-input">Buscar Producto</label>
+                        <input type="text" id="search-input" class="input" placeholder="Nombre o categoría...">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="category-filter">Categoría</label>
+                        <select id="category-filter" class="input">
+                            <option value="">Todas</option>
+                            <option value="SUPLEMENTO">Suplementos</option>
+                            <option value="BEBIDA">Bebidas</option>
+                            <option value="SNACK">Snacks</option>
+                            <option value="EQUIPO">Equipo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="stock-filter">Stock</label>
+                        <select id="stock-filter" class="input">
+                            <option value="">Mostrar Todo</option>
+                            <option value="ALERTA">En Alerta (Stock Bajo)</option>
+                            <option value="AGOTADO">Agotado (Stock 0)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="market-main">
+                <div class="market-grid-header">
+                    <h2>Inventario</h2>
+                </div>
+                <div id="product-grid" class="market-grid">
+                    <p>Cargando productos...</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/productos`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            const products = await response.json();
+            productsCache = products; // Guardar en caché para filtros
+
+            // Inicializar listeners para búsqueda y filtrado dinámico
+            document.getElementById('search-input').addEventListener('input', applyFilters);
+            document.getElementById('category-filter').addEventListener('change', applyFilters);
+            document.getElementById('stock-filter').addEventListener('change', applyFilters);
+
+            renderProductGrid(products);
+        } catch (error) {
+            document.getElementById('product-grid').innerHTML = `<p>Error al cargar el inventario: ${error.message}</p>`;
+        }
+    }
+
+    function applyFilters() {
+        const search = document.getElementById('search-input').value.toLowerCase();
+        const category = document.getElementById('category-filter').value;
+        const stockFilter = document.getElementById('stock-filter').value;
+
+        const filteredProducts = productsCache.filter(p => {
+            // Filtro de búsqueda (nombre o categoría)
+            const nameMatch = p.nombre.toLowerCase().includes(search) || (p.categoria && p.categoria.toLowerCase().includes(search));
+            // Filtro de categoría
+            const categoryMatch = !category || p.categoria === category;
+            // Filtro de Stock
+            let stockMatch = true;
+            if (stockFilter === 'ALERTA') {
+                stockMatch = p.stockCantidad > 0 && p.stockCantidad <= p.stockMinimoAlerta;
+            } else if (stockFilter === 'AGOTADO') {
+                stockMatch = p.stockCantidad <= 0;
+            }
+
+            return nameMatch && categoryMatch && stockMatch;
+        });
+
+        renderProductGrid(filteredProducts);
     }
 
     function displayData(data, section) {
@@ -238,53 +464,253 @@ document.addEventListener('DOMContentLoaded', () => {
         contentArea.appendChild(grid);
     }
 
+    function displayMembresias(planesAnaliticas) {
+    const gridWrapper = document.createElement('div');
+    gridWrapper.className = 'membership-center-wrapper'; // Para centrar el contenido
+    
+    const grid = document.createElement('div');
+    grid.className = 'membership-grid';
+
+    // Determinar permisos para mostrar botones
+    const canEditOrDelete = userRoles.includes('ADMINISTRADOR') || userRoles.includes('EMPLEADO');
+    
+    grid.innerHTML = planesAnaliticas.map(plan => { 
+        const totalClientes = plan.clientesActivos; // Dato REAL de la DB
+        const actionButtons = canEditOrDelete ? `
+            <div class="membership-card-footer">
+                <button class="action-btn btn-edit" data-id="${plan.id}" title="Editar Plan"><i class="material-icons">edit</i></button>
+                <button class="action-btn btn-delete" data-id="${plan.id}" title="Eliminar Plan"><i class="material-icons">delete</i></button>
+            </div>
+        ` : '';
+        
+        return `
+            <div class="membership-card">
+                <div class="membership-card-header"><h3>${plan.nombrePlan}</h3></div>
+                <div class="membership-card-body">
+                    <p class="price">$${plan.precio.toFixed(2)}<span> / ${plan.duracionDias} días</span></p>
+                    <p class="description">${plan.descripcion || 'Sin descripción.'}</p>
+                    
+                    <div class="plan-analytics">
+                        <div class="analytics-item">
+                            <i class="material-icons">person</i>
+                            <p><strong>${totalClientes}</strong> Clientes Activos</p>
+                        </div>
+                        <div class="analytics-item">
+                            <i class="material-icons">gavel</i>
+                            <p title="${plan.reglasAcceso || 'Sin reglas'}">Reglas: Ver Detalle</p>
+                        </div>
+                    </div>
+                </div>
+                ${actionButtons}
+            </div>
+        `;
+    }).join('');
+    
+    gridWrapper.appendChild(grid);
+    contentArea.appendChild(gridWrapper);
+}
+
     // --- PAGOS SECTION LOGIC ---
     async function loadPagosSection() {
+        contentArea.innerHTML = `
+        <div class="pagos-container">
+            <div class="pagos-sidebar card">
+                <h3>Previsión de Vencimiento</h3>
+                <div id="vencimientos-proximos">
+                    <p>Cargando fechas...</p>
+                </div>
+                <button id="add-pago-btn" class="btn-accent full-width" style="margin-top: 1.5rem;">
+                    <i class="material-icons">add</i> Registrar Pago
+                </button>
+            </div>
+            <div class="pagos-main">
+                <h2>Estado de Clientes (${new Date().toLocaleDateString('es-ES', { month: 'long' })})</h2>
+                <div class="payment-client-grid" id="clientes-status-grid">
+                    <p>Cargando estados...</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+        document.getElementById('add-pago-btn').addEventListener('click', showPagoRegistroModal);
+
         try {
             const response = await fetch(`${API_BASE_URL}/pagos/clientes-status`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error(`Error: ${response.status}`);
-            displayPagos(await response.json());
-        } catch (error) { contentArea.innerHTML = `<p>Error al cargar el estado de pagos: ${error.message}</p>`; }
+            const clientesStatus = await response.json();
+
+            displayPagos(clientesStatus);
+            displayVencimientos(clientesStatus);
+        } catch (error) {
+            document.getElementById('clientes-status-grid').innerHTML = `<p>Error al cargar el estado de pagos: ${error.message}</p>`;
+        }
     }
 
     function displayPagos(clientesStatus) {
-        const grid = document.createElement('div');
-        grid.className = 'payment-client-grid';
+        const grid = document.getElementById('clientes-status-grid');
+        if (!grid) return;
+
         grid.innerHTML = clientesStatus.map(cliente => `
-            <div class="payment-client-card status-${cliente.estadoPago}">
+        <div class="payment-client-card status-${cliente.estadoPago}">
+            <div class="card-header">
                 <h3>${cliente.nombreCompleto}</h3>
+                <span class="status-badge ${cliente.estadoPago}">${cliente.estadoPago}</span>
+            </div>
+            
+            <div class="card-body">
                 <p><strong>Código:</strong> ${cliente.codigoCliente}</p>
                 <p><strong>Email:</strong> ${cliente.correo}</p>
-                <p><strong>Estado:</strong> <span class="status-badge ${cliente.estadoPago}">${cliente.estadoPago}</span></p>
-                ${cliente.fechaVencimiento ? `<p><strong>Vencimiento:</strong> ${cliente.fechaVencimiento}</p>` : ''}
-                ${cliente.montoPendiente && cliente.montoPendiente > 0 ? `<p><strong>Monto Pendiente:</strong> $${cliente.montoPendiente.toFixed(2)}</p>` : ''}
-                <div class="actions">
-                    <button class="action-btn btn-edit" data-id="${cliente.id}"><i class="material-icons">visibility</i></button>
-                    <!-- Botón para registrar pago, si se implementa -->
-                </div>
+                ${cliente.fechaVencimiento ? `<p><strong>Vencimiento:</strong> ${new Date(cliente.fechaVencimiento).toLocaleDateString()}</p>` : ''}
+                ${cliente.montoPendiente && cliente.montoPendiente > 0 ? `<p class="monto-pendiente">Pendiente: <span>$${cliente.montoPendiente.toFixed(2)}</span></p>` : ''}
             </div>
-        `).join('');
-        contentArea.appendChild(grid);
+            
+            <div class="actions">
+                <button class="action-btn btn-history" data-id="${cliente.id}" title="Ver Historial"><i class="material-icons">history</i></button>
+                <button class="action-btn btn-register-payment" data-id="${cliente.id}" title="Registrar Pago"><i class="material-icons">receipt</i></button>
+            </div>
+        </div>
+    `).join('');
+
+        // Implementación placeholder para los botones
+        grid.querySelectorAll('.btn-register-payment').forEach(btn => btn.addEventListener('click', (e) => showPagoRegistroModal(e.target.closest('button').dataset.id)));
+        grid.querySelectorAll('.btn-history').forEach(btn => btn.addEventListener('click', (e) => showHistorialPagosModal(e.target.closest('button').dataset.id)));
     }
 
-    // --- MODAL LOGIC (PERSONA UNIFICADA) ---
-function showPersonaModal(data = null, section = 'clientes') {
-    const isEdit = data !== null;
-    modalTitle.textContent = isEdit ? `Editar ${section.slice(0, -1)}` : 'Crear Persona Unificada';
+    // Implementación placeholder para el modal de registro de pago
+    function showPagoRegistroModal(clienteId = null) {
+    // Si se llama desde el botón FAB, clienteId es null, si se llama desde la tarjeta, viene el ID
+    const isRegistrationFromCard = clienteId !== null;
+    modalTitle.textContent = isRegistrationFromCard ? `Registrar Pago para Cliente ID ${clienteId}` : 'Registro de Pago General';
     
-    // Al crear, forzamos la sección a 'clientes' para usar los datos
-    const currentSection = isEdit ? section : 'clientes'; 
+    // NOTA: Para un sistema real, necesitarías un endpoint que traiga el ID de membresía activa 
+    // y el monto pendiente del clienteId, pero por ahora simplificamos la UI.
     
-    const persona = isEdit ? data.persona : {};
-    
-    // Si estamos editando un cliente/empleado, no debemos mostrar la selección de rol
-    const showRoleSelector = !isEdit;
-
-    // Obtener el rol actual para preselección en edición, aunque la edición es más compleja en el unified
-    // Simplificamos la edición solo para los datos de Persona/Entidad principal.
-    const currentRole = section.toUpperCase().replace(/S$/, '') || 'CLIENTE';
-
     modalBody.innerHTML = `
+        <form id="registro-pago-form" class="modal-form">
+            <h4 class="form-title">Detalles del Pago</h4>
+            <div class="form-grid">
+                ${isRegistrationFromCard ? 
+                    `<input type="hidden" id="clienteId" value="${clienteId}">` : 
+                    `<div class="form-group full-width"><label for="clienteId">ID de Cliente</label><input type="number" id="clienteId" class="input" required></div>`
+                }
+                
+                <div class="form-group"><label for="membresiaId">ID de Membresía (Activa)</label><input type="number" id="membresiaId" class="input" placeholder="Ej: 1" required></div>
+                
+                <div class="form-group"><label for="monto">Monto Pagado ($)</label><input type="number" id="monto" class="input" step="0.01" required></div>
+                
+                <div class="form-group"><label for="metodo">Método de Pago</label>
+                    <select id="metodo" class="input" required>
+                        <option value="EFECTIVO">Efectivo</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer"><button type="submit" class="btn-accent">Confirmar Registro</button></div>
+        </form>
+    `;
+    
+    document.getElementById('registro-pago-form').addEventListener('submit', handlePagoFormSubmit);
+    unifiedModal.style.display = 'flex';
+}
+
+async function handlePagoFormSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    
+    // Recolección de datos
+    const body = {
+        clienteId: parseInt(form.elements.clienteId.value),
+        membresiaId: parseInt(form.elements.membresiaId.value),
+        monto: parseFloat(form.elements.monto.value),
+        metodo: form.elements.metodo.value
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/pagos`, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
+            body: JSON.stringify(body) 
+        });
+
+        if (!response.ok) { 
+            const errorData = await response.text(); 
+            throw new Error(errorData || `Error ${response.status}`); 
+        }
+
+        alert(`Pago de $${body.monto.toFixed(2)} registrado con éxito.`);
+        closeModal();
+        loadContent('pagos'); // Recargar la vista de estados
+    } catch (error) { 
+        alert(`Error al registrar el pago: ${error.message}`); 
+    }
+}
+    // Implementación placeholder para el modal de historial
+    async function showHistorialPagosModal(clienteId) {
+    modalTitle.textContent = `Historial de Pagos del Cliente ID ${clienteId}`;
+    modalBody.innerHTML = '<p>Cargando historial...</p>';
+    unifiedModal.style.display = 'flex';
+
+    try {
+        // NOTA: NECESITAS UN ENDPOINT DE BACKEND: /api/pagos/cliente/{id}
+        const response = await fetch(`${API_BASE_URL}/pagos?clienteId=${clienteId}`, { 
+            headers: { 'Authorization': `Bearer ${token}` } 
+        });
+
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        const historial = await response.json(); // Asumimos que devuelve una lista de objetos Pago
+        
+        if (historial.length === 0) {
+            modalBody.innerHTML = '<p>No se encontró historial de pagos para este cliente.</p>';
+            return;
+        }
+
+        // Renderizar el historial en una tabla
+        let tableHTML = `<table class="content-table">
+                            <thead>
+                                <tr><th>ID Pago</th><th>Monto</th><th>Método</th><th>Fecha Pago</th><th>Estado</th><th>Vencimiento</th></tr>
+                            </thead>
+                            <tbody>`;
+        
+        historial.forEach(pago => {
+            const estadoClass = pago.estado === 'VENCIDO' || pago.estado === 'PENDIENTE' ? 'status-rojo' : 'status-verde';
+            tableHTML += `<tr>
+                            <td>${pago.id}</td>
+                            <td>$${pago.montoPagado.toFixed(2)}</td>
+                            <td>${pago.metodo || 'N/A'}</td>
+                            <td>${new Date(pago.fechaPago).toLocaleDateString()}</td>
+                            <td><span class="status-badge ${estadoClass}">${pago.estado}</span></td>
+                            <td>${new Date(pago.fechaVencimiento).toLocaleDateString()}</td>
+                          </tr>`;
+        });
+
+        tableHTML += `</tbody></table>`;
+        modalBody.innerHTML = tableHTML;
+
+    } catch (error) {
+        modalBody.innerHTML = `<p class="error">Error al cargar el historial: ${error.message}. Asegúrate de tener el endpoint /api/pagos/cliente/{id} funcionando.</p>`;
+    }
+}
+
+    // --- MODAL LOGIC (PERSONA UNIFICADA) ---
+    function showPersonaModal(data = null, section = 'clientes') {
+        const isEdit = data !== null;
+        modalTitle.textContent = isEdit ? `Editar ${section.slice(0, -1)}` : 'Crear Persona Unificada';
+
+        // Al crear, forzamos la sección a 'clientes' para usar los datos
+        const currentSection = isEdit ? section : 'clientes';
+
+        const persona = isEdit ? data.persona : {};
+
+        // Si estamos editando un cliente/empleado, no debemos mostrar la selección de rol
+        const showRoleSelector = !isEdit;
+
+        // Obtener el rol actual para preselección en edición, aunque la edición es más compleja en el unified
+        // Simplificamos la edición solo para los datos de Persona/Entidad principal.
+        const currentRole = section.toUpperCase().replace(/S$/, '') || 'CLIENTE';
+
+        modalBody.innerHTML = `
         <form id="persona-form" class="modal-form">
             <input type="hidden" id="editId" value="${isEdit ? data.id : ''}">
             <input type="hidden" id="personaId" value="${isEdit && persona ? persona.id : ''}">
@@ -335,56 +761,56 @@ function showPersonaModal(data = null, section = 'clientes') {
             ` : ''}
 
             <div id="role-specific-fields">
-                ${isEdit && currentSection === 'clientes' ? 
-                    `<h4>Datos de Cliente</h4><div class="form-grid"><div class="form-group full-width"><label for="fechaInicio">Fecha de Inicio</label><input type="date" id="fechaInicio" class="input" value="${data.fechaInicio || new Date().toISOString().split('T')[0]}" required></div></div>` 
-                    : isEdit && currentSection === 'empleados' ?
+                ${isEdit && currentSection === 'clientes' ?
+                `<h4>Datos de Cliente</h4><div class="form-grid"><div class="form-group full-width"><label for="fechaInicio">Fecha de Inicio</label><input type="date" id="fechaInicio" class="input" value="${data.fechaInicio || new Date().toISOString().split('T')[0]}" required></div></div>`
+                : isEdit && currentSection === 'empleados' ?
                     `<h4>Datos de Empleado</h4><div class="form-grid"><div class="form-group"><label for="salario">Salario</label><input type="number" id="salario" class="input" value="${data.salario || ''}" required></div><div class="form-group"><label for="fechaContratacion">Fecha de Contratación</label><input type="date" id="fechaContratacion" class="input" value="${data.fechaContratacion || new Date().toISOString().split('T')[0]}" required></div></div>`
                     : ''
-                }
+            }
             </div>
 
             <div class="modal-footer"><button type="submit" class="btn-accent">${isEdit ? 'Guardar Cambios' : 'Crear Persona'}</button></div>
         </form>
     `;
-    
-    // Lógica para mostrar/ocultar campos en la creación
-    if (showRoleSelector) {
-        const roleSelector = document.getElementById('role-selector');
-        roleSelector.addEventListener('change', updateSpecificFields);
-        // Inicializar los campos específicos al abrir el modal (por defecto Cliente)
-        updateSpecificFields();
-    }
-    
-    // Listener para el formulario
-    document.getElementById('persona-form').addEventListener('submit', (e) => handlePersonaFormSubmit(e, isEdit, currentSection));
-    unifiedModal.style.display = 'flex';
-}
 
-function updateSpecificFields() {
-    const role = document.getElementById('role-selector').value;
-    const specificFields = document.getElementById('role-specific-fields');
-    const userCredentials = document.getElementById('user-credentials-fields');
+        // Lógica para mostrar/ocultar campos en la creación
+        if (showRoleSelector) {
+            const roleSelector = document.getElementById('role-selector');
+            roleSelector.addEventListener('change', updateSpecificFields);
+            // Inicializar los campos específicos al abrir el modal (por defecto Cliente)
+            updateSpecificFields();
+        }
 
-    let specificFieldsHTML = '';
-    
-    // Lógica para Credenciales de Usuario
-    // Ahora, se requieren credenciales para CLIENTE, EMPLEADO y ADMINISTRADOR
-    if (role === 'CLIENTE' || role === 'EMPLEADO' || role === 'ADMINISTRADOR') {
-        // La sección de credenciales ya está en el HTML, solo la mostramos
-        userCredentials.style.display = 'block'; 
-        // Hacemos el username y password obligatorios
-        document.getElementById('username').setAttribute('required', 'required');
-        document.getElementById('password').setAttribute('required', 'required');
-    } else {
-        // En caso de que se agregue un rol sin login en el futuro
-        userCredentials.style.display = 'none';
-        document.getElementById('username').removeAttribute('required');
-        document.getElementById('password').removeAttribute('required');
+        // Listener para el formulario
+        document.getElementById('persona-form').addEventListener('submit', (e) => handlePersonaFormSubmit(e, isEdit, currentSection));
+        unifiedModal.style.display = 'flex';
     }
 
-    // Lógica para campos específicos del Rol (ESTA PARTE NO CAMBIA)
-    if (role === 'CLIENTE') {
-        specificFieldsHTML = `
+    function updateSpecificFields() {
+        const role = document.getElementById('role-selector').value;
+        const specificFields = document.getElementById('role-specific-fields');
+        const userCredentials = document.getElementById('user-credentials-fields');
+
+        let specificFieldsHTML = '';
+
+        // Lógica para Credenciales de Usuario
+        // Ahora, se requieren credenciales para CLIENTE, EMPLEADO y ADMINISTRADOR
+        if (role === 'CLIENTE' || role === 'EMPLEADO' || role === 'ADMINISTRADOR') {
+            // La sección de credenciales ya está en el HTML, solo la mostramos
+            userCredentials.style.display = 'block';
+            // Hacemos el username y password obligatorios
+            document.getElementById('username').setAttribute('required', 'required');
+            document.getElementById('password').setAttribute('required', 'required');
+        } else {
+            // En caso de que se agregue un rol sin login en el futuro
+            userCredentials.style.display = 'none';
+            document.getElementById('username').removeAttribute('required');
+            document.getElementById('password').removeAttribute('required');
+        }
+
+        // Lógica para campos específicos del Rol (ESTA PARTE NO CAMBIA)
+        if (role === 'CLIENTE') {
+            specificFieldsHTML = `
             <h4 class="form-title">Datos de Cliente</h4>
             <div class="form-grid">
                 <div class="form-group full-width">
@@ -393,8 +819,8 @@ function updateSpecificFields() {
                 </div>
             </div>
         `;
-    } else if (role === 'EMPLEADO') {
-        specificFieldsHTML = `
+        } else if (role === 'EMPLEADO') {
+            specificFieldsHTML = `
             <h4 class="form-title">Datos de Empleado</h4>
             <div class="form-grid">
                 <div class="form-group">
@@ -407,101 +833,101 @@ function updateSpecificFields() {
                 </div>
             </div>
         `;
-    } 
-    // ADMINISTRADOR no tiene campos específicos de entidad, solo los de Persona y Usuario.
+        }
+        // ADMINISTRADOR no tiene campos específicos de entidad, solo los de Persona y Usuario.
 
-    specificFields.innerHTML = specificFieldsHTML;
-}
+        specificFields.innerHTML = specificFieldsHTML;
+    }
 
     async function handlePersonaFormSubmit(e, isEdit, section) {
-    e.preventDefault();
-    const form = e.target;
-    
-    // 1. Recolección de Datos de Persona (Común a todos)
-    const personaBody = { 
-        nombre: form.elements.nombre.value, 
-        apellido: form.elements.apellido.value, 
-        correo: form.elements.correo.value, 
-        telefono: form.elements.telefono.value, 
-        fechaNacimiento: form.elements.fechaNacimiento.value,
-        
-        // Nuevos campos
-        sexo: form.elements.sexo ? form.elements.sexo.value : null,
-        estadoCivil: form.elements.estadoCivil ? form.elements.estadoCivil.value : null,
-        direccion: form.elements.direccion ? form.elements.direccion.value : null,
-        telefonoEmergencia: form.elements.telefonoEmergencia ? form.elements.telefonoEmergencia.value : null,
-        notas: form.elements.notas ? form.elements.notas.value : null,
-    };
-    
-    // 2. Determinar Rol y Endpoint
-    let rol = isEdit ? section.toUpperCase().replace(/S$/, '') : form.elements['role-selector'].value;
-    let endpoint = isEdit ? section : 'personas/unified';
-    let url = isEdit ? `${API_BASE_URL}/${endpoint}/${form.elements.editId.value}` : `${API_BASE_URL}/${endpoint}`;
-    let method = isEdit ? 'PUT' : 'POST';
+        e.preventDefault();
+        const form = e.target;
 
-    // 3. Crear el DTO final (PersonaRequestDTO o el DTO de Edición)
-    let finalBody;
+        // 1. Recolección de Datos de Persona (Común a todos)
+        const personaBody = {
+            nombre: form.elements.nombre.value,
+            apellido: form.elements.apellido.value,
+            correo: form.elements.correo.value,
+            telefono: form.elements.telefono.value,
+            fechaNacimiento: form.elements.fechaNacimiento.value,
 
-    if (isEdit) {
-        // Lógica simplificada de edición: Solo actualiza el Cliente/Empleado, asumiendo que ya existe la Persona
-        // El backend debe manejar la actualización de la Persona anidada
-        finalBody = { 
-            persona: {
-                id: form.elements.personaId.value,
-                ...personaBody // Incluir los datos de Persona
+            // Nuevos campos
+            sexo: form.elements.sexo ? form.elements.sexo.value : null,
+            estadoCivil: form.elements.estadoCivil ? form.elements.estadoCivil.value : null,
+            direccion: form.elements.direccion ? form.elements.direccion.value : null,
+            telefonoEmergencia: form.elements.telefonoEmergencia ? form.elements.telefonoEmergencia.value : null,
+            notas: form.elements.notas ? form.elements.notas.value : null,
+        };
+
+        // 2. Determinar Rol y Endpoint
+        let rol = isEdit ? section.toUpperCase().replace(/S$/, '') : form.elements['role-selector'].value;
+        let endpoint = isEdit ? section : 'personas/unified';
+        let url = isEdit ? `${API_BASE_URL}/${endpoint}/${form.elements.editId.value}` : `${API_BASE_URL}/${endpoint}`;
+        let method = isEdit ? 'PUT' : 'POST';
+
+        // 3. Crear el DTO final (PersonaRequestDTO o el DTO de Edición)
+        let finalBody;
+
+        if (isEdit) {
+            // Lógica simplificada de edición: Solo actualiza el Cliente/Empleado, asumiendo que ya existe la Persona
+            // El backend debe manejar la actualización de la Persona anidada
+            finalBody = {
+                persona: {
+                    id: form.elements.personaId.value,
+                    ...personaBody // Incluir los datos de Persona
+                }
+            };
+
+            if (section === 'clientes') {
+                finalBody.fechaInicio = form.elements.fechaInicio.value;
+            } else if (section === 'empleados') {
+                finalBody.salario = parseFloat(form.elements.salario.value);
+                finalBody.fechaContratacion = form.elements.fechaContratacion.value;
             }
-        };
 
-        if (section === 'clientes') {
-            finalBody.fechaInicio = form.elements.fechaInicio.value;
-        } else if (section === 'empleados') {
-            finalBody.salario = parseFloat(form.elements.salario.value);
-            finalBody.fechaContratacion = form.elements.fechaContratacion.value;
+        } else {
+            // Lógica de Creación Unificada (usa PersonaRequestDTO)
+            finalBody = {
+                ...personaBody, // Datos de Persona
+                rol: rol
+            };
+
+            // Agregar credenciales de Usuario (si existen en el formulario)
+            if (form.elements.username && form.elements.username.value) {
+                finalBody.username = form.elements.username.value;
+                finalBody.password = form.elements.password.value;
+            }
+
+            // Agregar datos específicos del rol
+            if (rol === 'CLIENTE') {
+                finalBody.fechaInicio = form.elements.fechaInicio.value;
+            } else if (rol === 'EMPLEADO') {
+                finalBody.salario = parseFloat(form.elements.salario.value);
+                finalBody.fechaContratacion = form.elements.fechaContratacion.value;
+            }
         }
-    
-    } else { 
-        // Lógica de Creación Unificada (usa PersonaRequestDTO)
-        finalBody = {
-            ...personaBody, // Datos de Persona
-            rol: rol
-        };
-        
-        // Agregar credenciales de Usuario (si existen en el formulario)
-        if (form.elements.username && form.elements.username.value) {
-            finalBody.username = form.elements.username.value;
-            finalBody.password = form.elements.password.value;
-        }
-        
-        // Agregar datos específicos del rol
-        if (rol === 'CLIENTE') {
-            finalBody.fechaInicio = form.elements.fechaInicio.value;
-        } else if (rol === 'EMPLEADO') {
-            finalBody.salario = parseFloat(form.elements.salario.value);
-            finalBody.fechaContratacion = form.elements.fechaContratacion.value;
+
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(finalBody)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || `Error ${response.status}`);
+            }
+
+            alert(`Persona ${isEdit ? 'actualizada' : 'creada'} con éxito como ${rol}.`);
+            closeModal();
+            loadContent(section); // Recargar la sección actual
+
+        } catch (error) {
+            alert(`Error al guardar: ${error.message}`);
         }
     }
-
-
-    try {
-        const response = await fetch(url, { 
-            method, 
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
-            body: JSON.stringify(finalBody) 
-        });
-
-        if (!response.ok) { 
-            const errorData = await response.text(); 
-            throw new Error(errorData || `Error ${response.status}`); 
-        }
-
-        alert(`Persona ${isEdit ? 'actualizada' : 'creada'} con éxito como ${rol}.`);
-        closeModal();
-        loadContent(section); // Recargar la sección actual
-        
-    } catch (error) { 
-        alert(`Error al guardar: ${error.message}`); 
-    }
-}
 
 
     function showMembresiaModal(data = null) {
@@ -602,15 +1028,53 @@ function updateSpecificFields() {
     }
 
     function renderProductGrid(products) {
-        const grid = contentArea.querySelector('.product-grid');
-        grid.innerHTML = products.map(p => `
-            <div class="product-card" data-id="${p.id}">
-                <h4>${p.nombre}</h4>
-                <p class="product-price">$${p.precioVenta.toFixed(2)}</p>
-            </div>
-        `).join('');
-        grid.querySelectorAll('.product-card').forEach(card => card.addEventListener('click', () => addToCart(productsCache.find(p => p.id == card.dataset.id))));
+    const grid = document.getElementById('product-grid');
+    if (!grid) return;
+
+    if (products.length === 0) {
+        grid.innerHTML = '<p>No se encontraron productos con los filtros aplicados.</p>';
+        return;
     }
+
+    // Check if the user has permission for editing/deleting (Admin or Empleado)
+    const canEditOrDelete = userRoles.includes('ADMINISTRADOR') || userRoles.includes('EMPLEADO');
+    
+    grid.innerHTML = products.map(p => {
+        const isAgotado = p.stockCantidad <= 0;
+        const stockAlert = !isAgotado && p.stockCantidad <= p.stockMinimoAlerta;
+        const stockClass = isAgotado ? 'stock-agotado' : (stockAlert ? 'stock-low' : 'stock-ok');
+        
+        const stockText = isAgotado ? 'Agotado' : `Stock: ${p.stockCantidad} ${p.tipoMedida || 'Und.'}`;
+        
+        const actionButtons = canEditOrDelete ? `
+            <div class="product-actions">
+                <button class="action-btn btn-edit" data-id="${p.id}" title="Editar Producto"><i class="material-icons">edit</i></button>
+                <button class="action-btn btn-delete" data-id="${p.id}" title="Eliminar Producto"><i class="material-icons">delete</i></button>
+            </div>
+        ` : '';
+        
+        // Placeholder de imagen/icono basado en categoría
+        let icon = 'local_shipping';
+        if (p.categoria === 'SUPLEMENTO') icon = 'fitness_center';
+        else if (p.categoria === 'BEBIDA') icon = 'local_drink';
+        else if (p.categoria === 'SNACK') icon = 'fastfood';
+
+        return `
+            <div class="product-card market-view ${stockClass}">
+                <div class="product-image">
+                    <i class="material-icons product-icon">${icon}</i>
+                </div>
+                <div class="product-info">
+                    <h4 title="${p.nombre}">${p.nombre}</h4>
+                    <p class="category">${p.categoria || 'General'}</p>
+                    <p class="stock-info"><span>${stockText}</span></p>
+                    <p class="product-price">$${p.precioVenta.toFixed(2)}</p>
+                </div>
+                ${actionButtons}
+            </div>
+        `;
+    }).join('');
+}
 
     function addToCart(product) {
         const existingItem = cart.find(item => item.id === product.id);

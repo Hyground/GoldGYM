@@ -69,3 +69,96 @@
   margin-top: 1rem;
   text-align: right;
 }
+
+/* Estilos para la sección de Pagos */
+
+.pagos-container {
+  display: grid;
+  grid-template-columns: 300px 1fr; /* Barra lateral y contenido principal */
+  gap: 2rem;
+  min-height: 75vh;
+}
+
+.pagos-sidebar {
+    position: sticky; 
+    top: 2rem; 
+    align-self: start;
+    padding: 1.5rem;
+    background-color: var(--bg-card);
+}
+
+.payment-client-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.payment-client-card {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-client-card:hover {
+    transform: translateY(-3px);
+}
+
+.payment-client-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.payment-client-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.monto-pendiente {
+    font-weight: 500;
+}
+
+.monto-pendiente span {
+    color: #dc3545; /* Rojo de deuda */
+    font-weight: 700;
+}
+
+/* Colores de Alerta */
+.payment-client-card.status-ROJO { border-left: 5px solid #dc3545; }
+.payment-client-card.status-AMARILLO { border-left: 5px solid #ffc107; }
+.payment-client-card.status-VERDE { border-left: 5px solid #28a745; }
+
+/* Estilos de la barra lateral (Previsión) */
+#vencimientos-proximos {
+    margin-top: 1rem;
+}
+
+.vencimiento-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.95rem;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.vencimiento-item.status-ROJO { color: #dc3545; }
+.vencimiento-item.status-AMARILLO { color: #ffc107; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .pagos-container {
+        grid-template-columns: 1fr;
+    }
+    .pagos-sidebar {
+        position: static;
+        top: auto;
+    }
+}

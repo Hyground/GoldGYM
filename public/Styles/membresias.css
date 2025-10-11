@@ -69,3 +69,54 @@
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+/* --- Estilos para Centrado y Contenedor de Membresías --- */
+.membership-center-wrapper {
+    display: flex;
+    justify-content: center; /* Centra el grid */
+    width: 100%;
+}
+
+.membership-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+}
+
+/* --- Estilos para Analíticas y Datos Adicionales en la Tarjeta --- */
+.plan-analytics {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.analytics-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.analytics-item i {
+    color: var(--color-accent);
+    font-size: 1.2rem;
+}
+
+.analytics-item strong {
+    font-size: 1.1rem;
+}
+
+/* El resto de estilos de la tarjeta (membership-card, etc.) deberían estar ya en tu archivo */
+
+.membership-card-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
