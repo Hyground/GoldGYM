@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelDeleteButton = document.getElementById('cancel-delete-button');
 
     // --- STATE ---
-    const API_BASE_URL = 'http://localhost:8080/api';
+    const API_BASE_URL = 'https://goldgymapi-3.onrender.com';
     const token = sessionStorage.getItem('authToken');
     const username = sessionStorage.getItem('username');
     const userRoles = JSON.parse(sessionStorage.getItem('userRoles') || '[]'); // Obtener la lista de roles

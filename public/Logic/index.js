@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageElement = document.getElementById('message');
 
     // **IMPORTANTE**: Reemplaza esta URL con la ruta real de tu API de Login
-    const API_LOGIN_URL = 'http://localhost:8080/api/auth/login';
+    const API_LOGIN_URL = 'https://goldgymapi-3.onrender.com/api/auth/login';
 
     // Función para mostrar mensajes de estado
     function showMessage(msg, type) {
