@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Cliente - Gold GYM</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="Styles/dashboardEmpleado.css">
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="logo">
+        
+        <h2>GoldGYM</h2>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="#" class="active">🏠 Mi Perfil</a></li>
+            <li><a href="#">💳 Mi Membresía</a></li>
+            <li><a href="#">💰 Mis Pagos</a></li>
+            <li><a href="#">🛒 Tienda</a></li>
+            <li><a href="#" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+    </nav>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <h1>Mi Perfil</h1>
+        <div class="user-info">
+            <span class="user-name">USUARIO</span>
+       
+        </div>
+    </header>
+
+    <section class="dashboard">
+        <div class="card card-full-width">
+            <h3>Datos Personales</h3>
+            <div class="data-row">
+                <p><strong>Nombre:</strong> USUARIO</p>
+                <p><strong>Correo:</strong> CORREO@ejemplo.com</p>
+            </div>
+            <div class="data-row">
+                <p><strong>Teléfono:</strong> 555-1234</p>
+                <p><strong>Fecha de Nacimiento:</strong> 15/05/1995</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Membresía</h3>
+            <p class="status status-active">Activa</p>
+            <p><strong>Plan:</strong> Mensual</p>
+            <p><strong>Vencimiento:</strong> 15/11/2025</p>
+        </div>
+
+        <div class="card">
+            <h3>Último Pago</h3>
+            <p>$50.00</p>
+            <p><strong>Fecha:</strong> 15/10/2025</p>
+        </div>
+    </section>
+
+    <section class="activity">
+        <h2>Historial de Pagos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID de Pago</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>P-001</td>
+                    <td>$50.00</td>
+                    <td>15/10/2025</td>
+                    <td><span class="status status-active">Pagado</span></td>
+                </tr>
+                <tr>
+                    <td>P-002</td>
+                    <td>$50.00</td>
+                    <td>15/09/2025</td>
+                    <td><span class="status status-active">Pagado</span></td>
+                </tr>
+                <tr>
+                    <td>P-003</td>
+                    <td>$50.00</td>
+                    <td>15/08/2025</td>
+                    <td><span class="status status-inactive">Vencido</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<script>
+    document.querySelector('.logout').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'index.html';
+    });
+</script>
+
+</body>
+</html>

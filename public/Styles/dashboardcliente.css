@@ -1,0 +1,75 @@
+/* Este archivo CSS usa y complementa los estilos globales definidos en base.css y design-system.css */
+
+/* --- Estilos específicos para la sección "Mi Perfil" --- */
+.profile-card {
+    padding: 2rem;
+    background-color: var(--bg-card);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-card h3 {
+    margin: 0;
+    color: var(--color-accent);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.profile-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+}
+
+.profile-details p {
+    margin: 0;
+    flex: 1 1 200px;
+}
+
+.profile-details p strong {
+    color: var(--text-primary);
+}
+
+/* --- Estilos para la sección "Mi Membresía" --- */
+.membership-card-active {
+    padding: 2rem;
+    background-color: color-mix(in srgb, var(--color-success) 10%, var(--bg-card) 90%);
+    border: 1px solid var(--color-success);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.membership-card-active .membership-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.membership-card-active .status-badge {
+    background-color: var(--color-success);
+    color: var(--bg-card);
+}
+
+/* --- Estilos para la sección "Mis Pagos" --- */
+/* Reutiliza .content-table, .status-badge y otros estilos de dashboardadmin.css */
+
+/* --- Estilos para la sección "Tienda" --- */
+/* Reutiliza .market-grid y otros estilos de market.css */
+.market-view {
+    cursor: default;
+    transition: all 0.2s ease;
+}
+
+.market-view:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* El resto de los estilos compartidos (sidebar, main-header, etc.)
+   ya están definidos en los otros archivos CSS que enlazas en el HTML. */
