@@ -211,3 +211,68 @@
     cursor: pointer;
     z-index: 999;
 }
+
+/* --- Estilos para la Tabla de Contenido (Clientes/Empleados) --- */
+
+/* Animación al pasar el mouse por la fila */
+.content-table tbody tr {
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.content-table tbody tr:hover {
+    background-color: color-mix(in srgb, var(--bg-primary) 80%, var(--bg-card) 20%);
+    transform: scale(1.005);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra sutil al elevarse */
+}
+
+/* Estilo para los botones de acción en la tabla */
+.content-table .action-cell {
+    text-align: center;
+    min-width: 80px; /* Asegurar espacio suficiente para los iconos */
+}
+
+.content-table .action-btn {
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.content-table .action-btn:hover {
+    background-color: var(--bg-primary); /* Fondo suave al pasar el mouse */
+    color: var(--color-accent);
+}
+
+/* --- Estilos para los Badges de Estado (Activo/Inactivo) --- */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3em 0.8em;
+    border-radius: 12px; /* Más redondeado */
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.status-activo {
+    background-color: #28a74533; /* Verde muy suave */
+    color: #28a745; /* Texto verde */
+}
+
+.status-inactivo {
+    background-color: #6c757d33; /* Gris muy suave */
+    color: #6c757d; /* Texto gris */
+}
+
+/* Ajuste del botón FAB para el diseño oscuro */
+.fab {
+    background-color: var(--color-accent);
+    color: var(--bg-card); /* Color de texto que contrasta bien con el acento */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.fab:hover {
+    transform: rotate(90deg) scale(1.05); /* Animación de rotación */
+    background-color: var(--color-accent-hover);
+    box-shadow: 0 8px 15px rgba(255, 149, 0, 0.4);
+}

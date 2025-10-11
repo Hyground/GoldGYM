@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = 'http://localhost:8080/api';
     const token = sessionStorage.getItem('authToken');
     const username = sessionStorage.getItem('username');
+    const userRoles = JSON.parse(sessionStorage.getItem('userRoles') || '[]'); // Obtener la lista de roles
+
     let cart = []; // POS cart state
     let currentIdToDelete = null;
     let currentSectionForDelete = null;
@@ -35,19 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZERS ---
     function initializeUI() {
         usernameDisplay.textContent = username;
+        // Ocultar el FAB si el rol no tiene permiso para crear (p. ej., si solo es Cliente)
+        if (!userRoles.includes('ADMINISTRADOR') && !userRoles.includes('EMPLEADO')) {
+            if (fab) fab.style.display = 'none';
+        }
     }
 
     function initializeEventListeners() {
         themeToggleButton.addEventListener('click', () => typeof toggleTheme === 'function' && toggleTheme());
         logoutButton.addEventListener('click', (e) => { e.preventDefault(); sessionStorage.clear(); window.location.href = 'index.html'; });
         navLinks.forEach(link => link.addEventListener('click', handleNavClick));
-        if(fab) fab.addEventListener('click', handleFabClick);
+        if (fab) fab.addEventListener('click', handleFabClick);
         // Modals
         closeModalBtn.addEventListener('click', closeModal);
         unifiedModal.addEventListener('click', e => { if (e.target === unifiedModal) closeModal(); });
-        if(deleteModal) deleteModal.addEventListener('click', e => { if (e.target === deleteModal) cerrarModalEliminacion(); });
-        if(cancelDeleteButton) cancelDeleteButton.addEventListener('click', cerrarModalEliminacion);
-        if(confirmDeleteButton) confirmDeleteButton.addEventListener('click', confirmarEliminacion);
+        if (deleteModal) deleteModal.addEventListener('click', e => { if (e.target === deleteModal) cerrarModalEliminacion(); });
+        if (cancelDeleteButton) cancelDeleteButton.addEventListener('click', cerrarModalEliminacion);
+        if (confirmDeleteButton) confirmDeleteButton.addEventListener('click', confirmarEliminacion);
         // Content Area Delegation
         contentArea.addEventListener('click', handleContentAreaClick);
     }
@@ -96,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (productCard && section === 'ventas') {
             const id = productCard.dataset.id;
             const product = productsCache.find(p => p.id == id); // Use cached products
-            if(product) addToCart(product);
+            if (product) addToCart(product);
         }
     }
 
@@ -155,18 +161,60 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayTable(data, section) {
         const table = document.createElement('table');
         table.className = 'content-table';
-        const headers = section === 'clientes' 
-            ? ['ID', 'Nombre', 'Email', 'Código', 'Estado', 'Acciones'] 
-            : ['ID', 'Nombre', 'Email', 'Salario', 'Contratación', 'Estado', 'Acciones'];
+
+        // Check if the user has permission for editing/deleting (ADMIN or EMPLEADO)
+        const canEditOrDelete = userRoles.includes('ADMINISTRADOR') || userRoles.includes('EMPLEADO');
+
+        // Headers definition
+        let headers = [];
+        if (section === 'clientes') {
+            // Nota: Asumo que el campo "Email" viene de 'emailPersona' o 'correoPersona'
+            headers = ['ID', 'Nombre', 'Email', 'Código', 'Activo', 'Acciones'];
+            if (!canEditOrDelete) headers = headers.filter(h => h !== 'Acciones'); // Ocultar columna si no tiene permiso
+        } else { // Empleados
+            headers = ['ID', 'Nombre', 'Email', 'Salario', 'Contratación', 'Activo', 'Acciones'];
+            if (!canEditOrDelete) headers = headers.filter(h => h !== 'Acciones');
+        }
+
         const rows = data.map(item => {
-            const commonCells = `<td>${item.id}</td><td>${item.nombrePersona || 'N/A'}</td><td>${item.correoPersona || 'N/A'}</td>`;
-            const actionCells = `<td><button class="action-btn btn-edit" data-id="${item.id}"><i class="material-icons">edit</i></button><button class="action-btn btn-delete" data-id="${item.id}"><i class="material-icons">delete</i></button></td>`;
+            // Determinar el estado para el badge
+            const activeStatus = item.activo ? 'Activo' : 'Inactivo';
+            const statusClass = item.activo ? 'status-activo' : 'status-inactivo';
+
+            const commonCells = `
+            <td>${item.id}</td>
+            <td>${item.nombrePersona || item.nombre || 'N/A'}</td>
+            <td>${item.emailPersona || item.correoPersona || 'N/A'}</td>
+        `;
+
+            let specificCells = '';
             if (section === 'clientes') {
-                return `<tr>${commonCells}<td>${item.codigoCliente || 'N/A'}</td><td>${item.activo ? 'Activo' : 'Inactivo'}</td>${actionCells}</tr>`;
-            } else {
-                return `<tr>${commonCells}<td>${item.salario ? `$${item.salario.toFixed(2)}` : 'N/A'}</td><td>${item.fechaContratacion || 'N/A'}</td><td>${item.activo ? 'Activo' : 'Inactivo'}</td>${actionCells}</tr>`;
+                specificCells = `
+                <td>${item.codigoCliente || 'N/A'}</td>
+                <td><span class="status-badge ${statusClass}">${activeStatus}</span></td>
+            `;
+            } else { // Empleados
+                specificCells = `
+                <td>${item.salario ? `$${item.salario.toFixed(2)}` : 'N/A'}</td>
+                <td>${item.fechaContratacion || 'N/A'}</td>
+                <td><span class="status-badge ${statusClass}">${activeStatus}</span></td>
+            `;
             }
+
+            // Cell for Actions (only render if the user has permission)
+            let actionCells = '';
+            if (canEditOrDelete) {
+                actionCells = `
+                <td class="action-cell">
+                    <button class="action-btn btn-edit" data-id="${item.id}" title="Editar"><i class="material-icons">edit</i></button>
+                    <button class="action-btn btn-delete" data-id="${item.id}" title="Eliminar"><i class="material-icons">delete</i></button>
+                </td>
+            `;
+            }
+
+            return `<tr>${commonCells}${specificCells}${actionCells}</tr>`;
         }).join('');
+
         table.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody>`;
         contentArea.appendChild(table);
     }
@@ -275,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadContent(section);
         } catch (error) { alert(`Error: ${error.message}`); }
     }
-    
+
     function showMembresiaModal(data = null) {
         const isEdit = data !== null;
         modalTitle.textContent = isEdit ? 'Editar Plan de Membresía' : 'Crear Nuevo Plan';
@@ -319,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- GENERAL MODAL & DELETE LOGIC ---
-    function closeModal() { if(unifiedModal) unifiedModal.style.display = 'none'; }
+    function closeModal() { if (unifiedModal) unifiedModal.style.display = 'none'; }
 
     function mostrarModalEliminacion(id, nombre, section) {
         currentIdToDelete = id;
@@ -328,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteModal.style.display = 'flex';
     }
 
-    function cerrarModalEliminacion() { if(deleteModal) deleteModal.style.display = 'none'; }
+    function cerrarModalEliminacion() { if (deleteModal) deleteModal.style.display = 'none'; }
 
     async function confirmarEliminacion() {
         if (currentIdToDelete && currentSectionForDelete) {
@@ -437,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // En una app real, pediríamos seleccionar un cliente.
         // Por ahora, usaremos un ID de cliente fijo (ej: 1) para la demo.
-        const clienteId = 1; 
+        const clienteId = 1;
         const total = cart.reduce((sum, item) => sum + (item.precioVenta * item.cantidad), 0);
         const productosIds = cart.flatMap(item => Array(item.cantidad).fill(item.id));
 
