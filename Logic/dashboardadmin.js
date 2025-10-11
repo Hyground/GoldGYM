@@ -267,62 +267,242 @@ document.addEventListener('DOMContentLoaded', () => {
         contentArea.appendChild(grid);
     }
 
-    // --- MODAL LOGIC (PERSONA) ---
-    function showPersonaModal(data = null, section = 'clientes') {
-        const isEdit = data !== null;
-        modalTitle.textContent = isEdit ? `Editar ${section.slice(0, -1)}` : 'Crear Persona';
-        const persona = isEdit ? data.persona : {};
-        modalBody.innerHTML = `
-            <form id="persona-form" class="modal-form">
-                <input type="hidden" id="editId" value="${isEdit ? data.id : ''}">
-                <input type="hidden" id="personaId" value="${isEdit && persona ? persona.id : ''}">
-                <h4>Datos Personales</h4>
-                <div class="form-grid">
-                    <div class="form-group"><label for="nombre">Nombre</label><input type="text" id="nombre" class="input" value="${persona.nombre || ''}" required></div>
-                    <div class="form-group"><label for="apellido">Apellido</label><input type="text" id="apellido" class="input" value="${persona.apellido || ''}" required></div>
-                    <div class="form-group"><label for="correo">Correo</label><input type="email" id="correo" class="input" value="${persona.correo || ''}" required></div>
-                    <div class="form-group"><label for="telefono">Teléfono</label><input type="tel" id="telefono" class="input" value="${persona.telefono || ''}"></div>
-                    <div class="form-group full-width"><label for="fechaNacimiento">Fecha de Nacimiento</label><input type="date" id="fechaNacimiento" class="input" value="${persona.fechaNacimiento || ''}" required></div>
+    // --- MODAL LOGIC (PERSONA UNIFICADA) ---
+function showPersonaModal(data = null, section = 'clientes') {
+    const isEdit = data !== null;
+    modalTitle.textContent = isEdit ? `Editar ${section.slice(0, -1)}` : 'Crear Persona Unificada';
+    
+    // Al crear, forzamos la sección a 'clientes' para usar los datos
+    const currentSection = isEdit ? section : 'clientes'; 
+    
+    const persona = isEdit ? data.persona : {};
+    
+    // Si estamos editando un cliente/empleado, no debemos mostrar la selección de rol
+    const showRoleSelector = !isEdit;
+
+    // Obtener el rol actual para preselección en edición, aunque la edición es más compleja en el unified
+    // Simplificamos la edición solo para los datos de Persona/Entidad principal.
+    const currentRole = section.toUpperCase().replace(/S$/, '') || 'CLIENTE';
+
+    modalBody.innerHTML = `
+        <form id="persona-form" class="modal-form">
+            <input type="hidden" id="editId" value="${isEdit ? data.id : ''}">
+            <input type="hidden" id="personaId" value="${isEdit && persona ? persona.id : ''}">
+            
+            <h4 class="form-title">Datos Personales</h4>
+            <div class="form-grid">
+                <div class="form-group"><label for="nombre">Nombre</label><input type="text" id="nombre" class="input" value="${persona.nombre || ''}" required></div>
+                <div class="form-group"><label for="apellido">Apellido</label><input type="text" id="apellido" class="input" value="${persona.apellido || ''}" required></div>
+                <div class="form-group"><label for="correo">Correo Electrónico</label><input type="email" id="correo" class="input" value="${persona.correo || ''}" required></div>
+                <div class="form-group"><label for="telefono">Teléfono Principal</label><input type="tel" id="telefono" class="input" value="${persona.telefono || ''}"></div>
+                <div class="form-group"><label for="fechaNacimiento">F. Nacimiento</label><input type="date" id="fechaNacimiento" class="input" value="${persona.fechaNacimiento || ''}" required></div>
+                <div class="form-group">
+                    <label for="sexo">Sexo</label>
+                    <select id="sexo" class="input">
+                        <option value="">Selecciona</option>
+                        <option value="M" ${persona.sexo === 'M' ? 'selected' : ''}>Masculino</option>
+                        <option value="F" ${persona.sexo === 'F' ? 'selected' : ''}>Femenino</option>
+                        <option value="O" ${persona.sexo === 'O' ? 'selected' : ''}>Otro</option>
+                    </select>
                 </div>
-                <div id="role-specific-fields"></div>
-                <div class="modal-footer"><button type="submit" class="btn-accent">${isEdit ? 'Guardar Cambios' : 'Crear'}</button></div>
-            </form>
-        `;
-        const roleSpecificFields = document.getElementById('role-specific-fields');
-        let specificFieldsHTML = '';
-        if (section === 'clientes') {
-            specificFieldsHTML = `<h4>Datos de Cliente</h4><div class="form-grid"><div class="form-group full-width"><label for="fechaInicio">Fecha de Inicio</label><input type="date" id="fechaInicio" class="input" value="${isEdit ? data.fechaInicio : new Date().toISOString().split('T')[0]}" required></div></div>`;
-        } else if (section === 'empleados') {
-            specificFieldsHTML = `<h4>Datos de Empleado</h4><div class="form-grid"><div class="form-group"><label for="salario">Salario</label><input type="number" id="salario" class="input" value="${isEdit ? data.salario : ''}" required></div><div class="form-group"><label for="fechaContratacion">Fecha de Contratación</label><input type="date" id="fechaContratacion" class="input" value="${isEdit ? data.fechaContratacion : new Date().toISOString().split('T')[0]}" required></div></div>`;
-        }
-        roleSpecificFields.innerHTML = specificFieldsHTML;
-        document.getElementById('persona-form').addEventListener('submit', (e) => handlePersonaFormSubmit(e, isEdit, section));
-        unifiedModal.style.display = 'flex';
+                <div class="form-group"><label for="estadoCivil">Estado Civil</label><input type="text" id="estadoCivil" class="input" value="${persona.estadoCivil || ''}"></div>
+                <div class="form-group"><label for="telefonoEmergencia">Teléfono Emergencia</label><input type="tel" id="telefonoEmergencia" class="input" value="${persona.telefonoEmergencia || ''}"></div>
+                <div class="form-group full-width"><label for="direccion">Dirección</label><input type="text" id="direccion" class="input" value="${persona.direccion || ''}"></div>
+                <div class="form-group full-width"><label for="notas">Notas</label><textarea id="notas" class="input" rows="3">${persona.notas || ''}</textarea></div>
+            </div>
+            
+            ${showRoleSelector ? `
+                <h4 class="form-title">Tipo de Entidad y Acceso</h4>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="role-selector">Rol a Asignar</label>
+                        <select id="role-selector" class="input" required>
+                            <option value="CLIENTE" selected>Cliente (Socio del Gimnasio)</option>
+                            <option value="EMPLEADO">Empleado (Personal)</option>
+                            <option value="ADMINISTRADOR">Administrador (Gestión Total)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="user-credentials-fields" style="display: none;">
+                    <h4 class="form-title">Credenciales de Acceso</h4>
+                    <p class="form-hint">Requiere credenciales para iniciar sesión.</p>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="username">Nombre de Usuario</label><input type="text" id="username" class="input"></div>
+                        <div class="form-group"><label for="password">Contraseña</label><input type="password" id="password" class="input"></div>
+                    </div>
+                </div>
+            ` : ''}
+
+            <div id="role-specific-fields">
+                ${isEdit && currentSection === 'clientes' ? 
+                    `<h4>Datos de Cliente</h4><div class="form-grid"><div class="form-group full-width"><label for="fechaInicio">Fecha de Inicio</label><input type="date" id="fechaInicio" class="input" value="${data.fechaInicio || new Date().toISOString().split('T')[0]}" required></div></div>` 
+                    : isEdit && currentSection === 'empleados' ?
+                    `<h4>Datos de Empleado</h4><div class="form-grid"><div class="form-group"><label for="salario">Salario</label><input type="number" id="salario" class="input" value="${data.salario || ''}" required></div><div class="form-group"><label for="fechaContratacion">Fecha de Contratación</label><input type="date" id="fechaContratacion" class="input" value="${data.fechaContratacion || new Date().toISOString().split('T')[0]}" required></div></div>`
+                    : ''
+                }
+            </div>
+
+            <div class="modal-footer"><button type="submit" class="btn-accent">${isEdit ? 'Guardar Cambios' : 'Crear Persona'}</button></div>
+        </form>
+    `;
+    
+    // Lógica para mostrar/ocultar campos en la creación
+    if (showRoleSelector) {
+        const roleSelector = document.getElementById('role-selector');
+        roleSelector.addEventListener('change', updateSpecificFields);
+        // Inicializar los campos específicos al abrir el modal (por defecto Cliente)
+        updateSpecificFields();
+    }
+    
+    // Listener para el formulario
+    document.getElementById('persona-form').addEventListener('submit', (e) => handlePersonaFormSubmit(e, isEdit, currentSection));
+    unifiedModal.style.display = 'flex';
+}
+
+function updateSpecificFields() {
+    const role = document.getElementById('role-selector').value;
+    const specificFields = document.getElementById('role-specific-fields');
+    const userCredentials = document.getElementById('user-credentials-fields');
+
+    let specificFieldsHTML = '';
+    
+    // Lógica para Credenciales de Usuario
+    // Ahora, se requieren credenciales para CLIENTE, EMPLEADO y ADMINISTRADOR
+    if (role === 'CLIENTE' || role === 'EMPLEADO' || role === 'ADMINISTRADOR') {
+        // La sección de credenciales ya está en el HTML, solo la mostramos
+        userCredentials.style.display = 'block'; 
+        // Hacemos el username y password obligatorios
+        document.getElementById('username').setAttribute('required', 'required');
+        document.getElementById('password').setAttribute('required', 'required');
+    } else {
+        // En caso de que se agregue un rol sin login en el futuro
+        userCredentials.style.display = 'none';
+        document.getElementById('username').removeAttribute('required');
+        document.getElementById('password').removeAttribute('required');
     }
 
+    // Lógica para campos específicos del Rol (ESTA PARTE NO CAMBIA)
+    if (role === 'CLIENTE') {
+        specificFieldsHTML = `
+            <h4 class="form-title">Datos de Cliente</h4>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="fechaInicio">Fecha de Inicio</label>
+                    <input type="date" id="fechaInicio" class="input" value="${new Date().toISOString().split('T')[0]}" required>
+                </div>
+            </div>
+        `;
+    } else if (role === 'EMPLEADO') {
+        specificFieldsHTML = `
+            <h4 class="form-title">Datos de Empleado</h4>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="salario">Salario</label>
+                    <input type="number" id="salario" class="input" required>
+                </div>
+                <div class="form-group">
+                    <label for="fechaContratacion">Fecha de Contratación</label>
+                    <input type="date" id="fechaContratacion" class="input" value="${new Date().toISOString().split('T')[0]}" required>
+                </div>
+            </div>
+        `;
+    } 
+    // ADMINISTRADOR no tiene campos específicos de entidad, solo los de Persona y Usuario.
+
+    specificFields.innerHTML = specificFieldsHTML;
+}
+
     async function handlePersonaFormSubmit(e, isEdit, section) {
-        e.preventDefault();
-        const form = e.target;
-        const id = form.elements.editId.value;
-        const personaId = form.elements.personaId.value;
-        const persona = { id: personaId ? parseInt(personaId) : null, nombre: form.elements.nombre.value, apellido: form.elements.apellido.value, correo: form.elements.correo.value, telefono: form.elements.telefono.value, fechaNacimiento: form.elements.fechaNacimiento.value };
-        let body = { persona, activo: true };
+    e.preventDefault();
+    const form = e.target;
+    
+    // 1. Recolección de Datos de Persona (Común a todos)
+    const personaBody = { 
+        nombre: form.elements.nombre.value, 
+        apellido: form.elements.apellido.value, 
+        correo: form.elements.correo.value, 
+        telefono: form.elements.telefono.value, 
+        fechaNacimiento: form.elements.fechaNacimiento.value,
+        
+        // Nuevos campos
+        sexo: form.elements.sexo ? form.elements.sexo.value : null,
+        estadoCivil: form.elements.estadoCivil ? form.elements.estadoCivil.value : null,
+        direccion: form.elements.direccion ? form.elements.direccion.value : null,
+        telefonoEmergencia: form.elements.telefonoEmergencia ? form.elements.telefonoEmergencia.value : null,
+        notas: form.elements.notas ? form.elements.notas.value : null,
+    };
+    
+    // 2. Determinar Rol y Endpoint
+    let rol = isEdit ? section.toUpperCase().replace(/S$/, '') : form.elements['role-selector'].value;
+    let endpoint = isEdit ? section : 'personas/unified';
+    let url = isEdit ? `${API_BASE_URL}/${endpoint}/${form.elements.editId.value}` : `${API_BASE_URL}/${endpoint}`;
+    let method = isEdit ? 'PUT' : 'POST';
+
+    // 3. Crear el DTO final (PersonaRequestDTO o el DTO de Edición)
+    let finalBody;
+
+    if (isEdit) {
+        // Lógica simplificada de edición: Solo actualiza el Cliente/Empleado, asumiendo que ya existe la Persona
+        // El backend debe manejar la actualización de la Persona anidada
+        finalBody = { 
+            persona: {
+                id: form.elements.personaId.value,
+                ...personaBody // Incluir los datos de Persona
+            }
+        };
+
         if (section === 'clientes') {
-            body.fechaInicio = form.elements.fechaInicio.value;
+            finalBody.fechaInicio = form.elements.fechaInicio.value;
         } else if (section === 'empleados') {
-            body.salario = parseFloat(form.elements.salario.value);
-            body.fechaContratacion = form.elements.fechaContratacion.value;
+            finalBody.salario = parseFloat(form.elements.salario.value);
+            finalBody.fechaContratacion = form.elements.fechaContratacion.value;
         }
-        const method = isEdit ? 'PUT' : 'POST';
-        const url = isEdit ? `${API_BASE_URL}/${section}/${id}` : `${API_BASE_URL}/${section}`;
-        try {
-            const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(body) });
-            if (!response.ok) { const errorData = await response.text(); throw new Error(errorData || `Error ${response.status}`); }
-            alert(`${section.slice(0, -1)} ${isEdit ? 'actualizado' : 'creado'} con éxito.`);
-            closeModal();
-            loadContent(section);
-        } catch (error) { alert(`Error: ${error.message}`); }
+    
+    } else { 
+        // Lógica de Creación Unificada (usa PersonaRequestDTO)
+        finalBody = {
+            ...personaBody, // Datos de Persona
+            rol: rol
+        };
+        
+        // Agregar credenciales de Usuario (si existen en el formulario)
+        if (form.elements.username && form.elements.username.value) {
+            finalBody.username = form.elements.username.value;
+            finalBody.password = form.elements.password.value;
+        }
+        
+        // Agregar datos específicos del rol
+        if (rol === 'CLIENTE') {
+            finalBody.fechaInicio = form.elements.fechaInicio.value;
+        } else if (rol === 'EMPLEADO') {
+            finalBody.salario = parseFloat(form.elements.salario.value);
+            finalBody.fechaContratacion = form.elements.fechaContratacion.value;
+        }
     }
+
+
+    try {
+        const response = await fetch(url, { 
+            method, 
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
+            body: JSON.stringify(finalBody) 
+        });
+
+        if (!response.ok) { 
+            const errorData = await response.text(); 
+            throw new Error(errorData || `Error ${response.status}`); 
+        }
+
+        alert(`Persona ${isEdit ? 'actualizada' : 'creada'} con éxito como ${rol}.`);
+        closeModal();
+        loadContent(section); // Recargar la sección actual
+        
+    } catch (error) { 
+        alert(`Error al guardar: ${error.message}`); 
+    }
+}
+
 
     function showMembresiaModal(data = null) {
         const isEdit = data !== null;

@@ -154,6 +154,9 @@
 .modal-panel {
     width: 90%;
     max-width: 550px;
+    max-height: 95vh;
+    overflow-y: auto; 
+    box-sizing: border-box;
 }
 
 .modal-header {
@@ -275,4 +278,44 @@
     transform: rotate(90deg) scale(1.05); /* Animación de rotación */
     background-color: var(--color-accent-hover);
     box-shadow: 0 8px 15px rgba(255, 149, 0, 0.4);
+}
+
+/* --- Mejoras de Estilo para el Modal Unificado --- */
+
+/* Títulos dentro del modal para mejor separación visual */
+.modal-body .form-title {
+    margin: 1.5rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--color-accent); /* Resaltar los nuevos bloques */
+    font-size: 1.1rem;
+}
+
+/* Texto de ayuda/instrucción sutil */
+.modal-body .form-hint {
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    grid-column: 1 / -1; /* Ocupa todo el ancho */
+}
+
+/* Ajuste del selector para que luzca como un input */
+.modal-body select.input {
+    appearance: none; /* Eliminar el estilo nativo de la flecha */
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%238e8e93'%3e%3cpath d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    padding-right: 2.5rem; /* Espacio para el icono */
+}
+
+/* Estilos de botones de acento más específicos si son necesarios */
+.modal-footer .btn-accent {
+    min-width: 150px;
+}
+.modal-body {
+    /* Si el modal-panel tiene scroll, este div no necesita un alto fijo, solo padding */
+    padding-bottom: 2rem; 
 }
