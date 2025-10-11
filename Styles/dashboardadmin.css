@@ -1,0 +1,213 @@
+/* Estilos del Dashboard basados en el Design System */
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: background-color var(--transition-speed), border-color var(--transition-speed);
+}
+
+.sidebar-header h2 {
+  padding: 1.5rem;
+  margin: 0;
+  text-align: center;
+  color: var(--color-accent);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: color var(--transition-speed), background-color var(--transition-speed);
+}
+
+.sidebar-nav a:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+.sidebar-nav a.active {
+  color: var(--color-accent);
+  border-right: 3px solid var(--color-accent);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 2rem;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.main-header h1 {
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-speed), background-color var(--transition-speed);
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.content-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--bg-card);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+}
+
+.content-table th, .content-table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.content-table thead th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    background-color: var(--bg-primary);
+}
+
+.content-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.content-table tbody tr:hover {
+    background-color: var(--bg-primary);
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 4px;
+}
+
+.action-btn:hover {
+    color: var(--color-accent);
+}
+
+/* Estilos para el modal unificado */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+
+.modal-panel {
+    width: 90%;
+    max-width: 550px;
+}
+
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem; margin-bottom: 1.5rem;
+}
+
+.close-btn {
+    background: none; border: none; font-size: 1.5rem; cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 0.5rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.modal-body label {
+    display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary);
+}
+
+.modal-footer {
+    text-align: right;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+/* Botón flotante */
+.fab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    color: #1c1c1e;
+    border: none;
+    box-shadow: var(--shadow-soft);
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 999;
+}

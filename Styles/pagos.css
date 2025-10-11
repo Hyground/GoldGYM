@@ -1,0 +1,71 @@
+/* Estilos para la sección de Pagos */
+
+.payment-client-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.payment-client-card {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.payment-client-card.status-ROJO {
+  border-left: 5px solid #dc3545; /* Rojo */
+}
+
+.payment-client-card.status-AMARILLO {
+  border-left: 5px solid #ffc107; /* Amarillo */
+}
+
+.payment-client-card.status-VERDE {
+  border-left: 5px solid #28a745; /* Verde */
+}
+
+.payment-client-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.payment-client-card p {
+  margin: 0.25rem 0;
+  color: var(--text-secondary);
+}
+
+.payment-client-card .status-badge {
+  display: inline-block;
+  padding: 0.3em 0.6em;
+  border-radius: 0.5rem;
+  font-size: 0.8em;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+.status-badge.ROJO {
+  background-color: #dc3545;
+  color: white;
+}
+
+.status-badge.AMARILLO {
+  background-color: #ffc107;
+  color: #343a40;
+}
+
+.status-badge.VERDE {
+  background-color: #28a745;
+  color: white;
+}
+
+.payment-client-card .actions {
+  margin-top: 1rem;
+  text-align: right;
+}

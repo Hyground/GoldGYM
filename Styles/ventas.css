@@ -1,0 +1,110 @@
+/* Estilos para la sección de Ventas (POS) */
+
+.pos-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  height: calc(100vh - 10rem); /* Ajustar altura */
+}
+
+/* Columna de Productos */
+.product-grid-wrapper {
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.product-card {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  text-align: center;
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--border-color);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-soft);
+}
+
+.product-card h4 {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.product-card .product-price {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+/* Columna del Carrito */
+.cart-wrapper {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-items {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cart-item-details {
+  flex-grow: 1;
+  margin-left: 1rem;
+}
+
+.cart-item-details h5 {
+  margin: 0 0 0.25rem 0;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-controls button {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.quantity-controls span {
+  padding: 0 1rem;
+}
+
+.cart-summary {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.cart-summary .total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-accent);
+}
+
+.cart-wrapper .btn-accent {
+  width: 100%;
+  margin-top: 1rem;
+}

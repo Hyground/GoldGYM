@@ -1,0 +1,25 @@
+:root {
+  /* Tema Claro (Por Defecto) */
+  --bg-primary: #f0f2f5;
+  --bg-card: #ffffff;
+  --text-primary: #1c1c1e;
+  --text-secondary: #6e6e73;
+  --color-accent: #ff9500; /* Naranja/Amarillo vibrante */
+  --color-accent-hover: #ffac33;
+  --border-color: #d2d2d7;
+  
+  /* Propiedades de UI */
+  --border-radius: 16px;
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --transition-speed: 0.3s;
+}
+
+[data-theme='dark'] {
+  /* Tema Oscuro (Sobreescrituras) */
+  --bg-primary: #121212;
+  --bg-card: #1e1e1e;
+  --text-primary: #e4e4e4;
+  --text-secondary: #8e8e93;
+  --border-color: #3a3a3c;
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
