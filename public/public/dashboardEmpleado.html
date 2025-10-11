@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Empleado GoldGYM</title>
+    <link rel="stylesheet" href="../Styles/dashboardEmpleado.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="logo">
+        <img src="../assets/logo.png" alt="GoldGYM">
+        <h2>GoldGYM</h2>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="#">🏠 Inicio</a></li>
+            <li><a href="#">💪 Clientes</a></li>
+            <li><a href="#">🛒 Ventas</a></li>
+            <li><a href="#">📊 Reportes</a></li>
+            <li><a href="#">⚙️ Configuración</a></li>
+            <li><a href="#" class="logout">🚪 Cerrar sesión</a></li>
+        </ul>
+    </nav>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <h1>Panel del Empleado</h1>
+        <div class="user-info">
+            <span class="user-name">Juan Pérez</span>
+            <img src="../assets/user.png" alt="Usuario" class="user-avatar">
+        </div>
+    </header>
+
+    <section class="dashboard">
+        <div class="card">
+            <h3>Clientes Activos</h3>
+            <p>128</p>
+        </div>
+        <div class="card">
+            <h3>Ventas del Día</h3>
+            <p>$820</p>
+        </div>
+        <div class="card">
+            <h3>Membresías Vencidas</h3>
+            <p>5</p>
+        </div>
+    </section>
+
+    <section class="activity">
+        <h2>Actividad Reciente</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Actividad</th>
+                <th>Fecha</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>María López</td>
+                <td>Pago membresía</td>
+                <td>10/10/2025</td>
+            </tr>
+            <tr>
+                <td>Carlos Díaz</td>
+                <td>Inscripción nueva</td>
+                <td>09/10/2025</td>
+            </tr>
+            <tr>
+                <td>Lucía Ramos</td>
+                <td>Compra de suplemento</td>
+                <td>09/10/2025</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
