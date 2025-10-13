@@ -15,11 +15,10 @@
     </div>
     <nav>
         <ul>
-            <li><a href="#">🏠 Inicio</a></li>
-            <li><a href="#">💪 Clientes</a></li>
-            <li><a href="#">🛒 Ventas</a></li>
-            <li><a href="#">📊 Reportes</a></li>
-            <li><a href="#">⚙️ Configuración</a></li>
+            <li><a href="#" class="active">📊 Dashboard</a></li>
+            <li><a href="#">👥 Gestión de Clientes</a></li>
+            <li><a href="#">🛒 Punto de Venta</a></li>
+            <li><a href="#">📈 Reportes</a></li>
             <li><a href="#" class="logout">🚪 Cerrar sesión</a></li>
         </ul>
     </nav>
@@ -27,7 +26,7 @@
 
 <main class="main-content">
     <header class="topbar">
-        <h1>Panel del Empleado</h1>
+        <h1>Panel de Control Diario</h1>
         <div class="user-info">
             <span class="user-name">Juan Pérez</span>
             <img src="../assets/user.png" alt="Usuario" class="user-avatar">
@@ -37,15 +36,25 @@
     <section class="dashboard">
         <div class="card">
             <h3>Clientes Activos</h3>
-            <p>128</p>
+            <p id="clientesActivos">147</p>
         </div>
         <div class="card">
             <h3>Ventas del Día</h3>
-            <p>$820</p>
+            <p id="ventasHoy">$4200</p>
         </div>
         <div class="card">
             <h3>Membresías Vencidas</h3>
-            <p>5</p>
+            <p id="membresiasVencidas">8</p>
+        </div>
+    </section>
+
+    <!-- 🟨 Nueva sección: Acciones rápidas -->
+    <section class="acciones-rapidas">
+        <h2>Acciones Rápidas</h2>
+        <div class="acciones-grid">
+            <button class="accion-btn azul">👤 Registrar Nuevo Cliente</button>
+            <button class="accion-btn verde">💵 Procesar Pago</button>
+            <button class="accion-btn morado">🛍️ Nueva Venta</button>
         </div>
     </section>
 
@@ -65,19 +74,11 @@
                 <td>Pago membresía</td>
                 <td>10/10/2025</td>
             </tr>
-            <tr>
-                <td>Carlos Díaz</td>
-                <td>Inscripción nueva</td>
-                <td>09/10/2025</td>
-            </tr>
-            <tr>
-                <td>Lucía Ramos</td>
-                <td>Compra de suplemento</td>
-                <td>09/10/2025</td>
-            </tr>
             </tbody>
         </table>
     </section>
+
+    <script src="../Logic/dashboardEmpleado.js"></script>
 </main>
 </body>
 </html>
