@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reportes - GoldGYM</title>
+  <link rel="stylesheet" href="../Styles/reportes.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <img src="../assets/logo.png" alt="GoldGYM">
+    <h2>Panel Empleado</h2>
+    <p>Gestión diaria</p>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#">📊 Dashboard</a></li>
+      <li><a href="#">👥 Gestión de Clientes</a></li>
+      <li><a href="#">🛒 Punto de Venta</a></li>
+      <li><a href="#" class="active">📈 Reportes</a></li>
+    </ul>
+  </nav>
+  <a href="#" class="logout">🚪 Cerrar sesión</a>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+  <header class="topbar">
+    <h1>Panel Empleado</h1>
+    <p>Vista simplificada de actividades del día</p>
+    <div class="acciones">
+      <button class="btn-secundario">Volver al Dashboard</button>
+      <button class="btn-secundario logout">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- Hora actual -->
+  <section class="hora-card">
+    <div class="hora-info">
+      <h3>Hora Actual</h3>
+      <div class="hora">
+        <h1 id="hora">22:58</h1>
+        <p id="fecha">12 oct 2025</p>
+      </div>
+      <button class="btn-turno">Turno Activo</button>
+    </div>
+  </section>
+
+  <!-- Resumen general -->
+  <section class="resumen">
+    <div class="card-resumen">
+      <div class="icono green">$</div>
+      <h3>Pagos del Día</h3>
+      <h2>$4,750</h2>
+      <p>5 transacciones procesadas</p>
+    </div>
+
+    <div class="card-resumen">
+      <div class="icono yellow">⚠️</div>
+      <h3>Próximas a Vencer</h3>
+      <h2>2</h2>
+      <p>Esta semana - <span class="alerta">Requieren atención</span></p>
+    </div>
+
+    <div class="card-resumen">
+      <div class="icono blue">👤</div>
+      <h3>Membresías Activas</h3>
+      <h2>95</h2>
+      <p>+16 este mes</p>
+    </div>
+  </section>
+
+  <!-- Pagos y vencimientos -->
+  <section class="reportes-grid">
+    <div class="bloque">
+      <h2>Pagos de Hoy <span class="estado ok">5 completados</span></h2>
+      <div class="lista">
+        <div class="item">
+          <span class="estado verde"></span>
+          <div class="info">
+            <h4>Ana García <span class="badge premium">Premium</span></h4>
+            <p>14:30</p>
+          </div>
+          <div class="monto">$850</div>
+        </div>
+
+        <div class="item">
+          <span class="estado verde"></span>
+          <div class="info">
+            <h4>Luis Martín <span class="badge vip">VIP</span></h4>
+            <p>13:15</p>
+          </div>
+          <div class="monto">$1200</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloque urgente">
+      <h2>Próximas a Vencer <span class="badge alerta">Urgente</span></h2>
+      <div class="lista">
+        <div class="item">
+          <span class="estado rojo"></span>
+          <div class="info">
+            <h4>Carlos López <span class="badge basico">Básico</span></h4>
+            <p>3 días restantes</p>
+          </div>
+          <div class="monto texto-rojo">Crítico</div>
+        </div>
+        <div class="item">
+          <span class="estado amarillo"></span>
+          <div class="info">
+            <h4>Isabel Torres <span class="badge premium">Premium</span></h4>
+            <p>6 días restantes</p>
+          </div>
+          <div class="monto texto-amarillo">Atención</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Estado de membresías -->
+  <section class="membresias">
+    <h2>Estado de Membresías Activas</h2>
+    <div class="planes">
+      <div class="plan basico">
+        <div class="circulo"></div>
+        <h3>45</h3>
+        <p>Plan Básico</p>
+        <span class="cambio">+5 este mes</span>
+      </div>
+      <div class="plan premium">
+        <div class="circulo"></div>
+        <h3>32</h3>
+        <p>Plan Premium</p>
+        <span class="cambio">+8 este mes</span>
+      </div>
+      <div class="plan vip">
+        <div class="circulo"></div>
+        <h3>18</h3>
+        <p>Plan VIP</p>
+        <span class="cambio">+3 este mes</span>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

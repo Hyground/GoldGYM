@@ -1,0 +1,157 @@
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #0d1117;
+    color: #fff;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #151a23;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-icon {
+    font-size: 2rem;
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+}
+
+.menu li {
+    margin: 15px 0;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #ccc;
+    font-weight: 500;
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.menu li.active a,
+.menu a:hover {
+    background-color: #2a2f3d;
+    color: #ffd700;
+}
+
+.logout a {
+    color: #ccc;
+    text-decoration: none;
+}
+
+/* Main */
+.content {
+    flex: 1;
+    padding: 30px;
+}
+
+header h1 {
+    font-size: 28px;
+    margin: 0;
+}
+
+header p {
+    color: #aaa;
+    margin-bottom: 25px;
+}
+
+/* Secciones superiores */
+.top-section {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.vencimientos,
+.filtros {
+    background: #1c2230;
+    border-radius: 12px;
+    padding: 20px;
+    flex: 1;
+}
+
+.vencimientos .card {
+    background: #111624;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.dias.rojos { color: #ff5555; font-weight: bold; }
+.dias.amarillos { color: #ffd700; font-weight: bold; }
+
+.membresia {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.membresia.basico { background-color: #444; color: #ccc; }
+.membresia.premium { background-color: #ffcc00; color: #000; }
+.membresia.vip { background-color: #b38bff; color: #fff; }
+
+/* Filtros */
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+input, select, button {
+    background: #111624;
+    border: 1px solid #333;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+button {
+    background: #ffd700;
+    color: #000;
+    cursor: pointer;
+    font-weight: 600;
+}
+button:hover { opacity: 0.9; }
+
+/* Tabla */
+.tabla-clientes {
+    background: #1c2230;
+    border-radius: 12px;
+    padding: 20px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: left;
+}
+th { color: #ffd700; font-weight: 600; }
+.estado {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+}
+.estado.activo { background: #2ecc71; }
+.estado.inactivo { background: #e74c3c; }
+.vencido { color: #ff5555; }
+.pago { color: #00d084; font-weight: bold; }
+

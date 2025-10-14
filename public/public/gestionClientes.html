@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Clientes</title>
+  <link rel="stylesheet" href="../Styles/gestionClientes.css" />
+</head>
+<body>
+<aside class="sidebar">
+  <div class="user-section">
+    <div class="user-icon">🟡</div>
+    <div>
+      <h3>Panel Empleado</h3>
+      <p>Gestión diaria</p>
+    </div>
+  </div>
+
+  <ul class="menu">
+    <li><a href="#">📊 Dashboard</a></li>
+    <li class="active"><a href="#">👥 Gestión de Clientes</a></li>
+    <li><a href="#">🛒 Punto de Venta</a></li>
+    <li><a href="#">📈 Reportes</a></li>
+  </ul>
+
+  <div class="logout">
+    <a href="#">Cerrar sesión</a>
+  </div>
+</aside>
+
+<main class="content">
+  <header>
+    <h1>Gestión de Clientes</h1>
+    <p>Administra membresías y pagos de clientes</p>
+  </header>
+
+  <section class="top-section">
+    <div class="vencimientos">
+      <h3>⚠️ Próximos Vencimientos</h3>
+      <div class="card">
+        <p><strong>Carlos López</strong></p>
+        <p class="dias rojos">3 días</p>
+        <p>24 jun 2024</p>
+        <span class="membresia basico">Básico</span>
+      </div>
+      <div class="card">
+        <p><strong>Isabel Torres</strong></p>
+        <p class="dias amarillos">6 días</p>
+        <p>27 jun 2024</p>
+        <span class="membresia vip">VIP</span>
+      </div>
+    </div>
+
+    <div class="filtros">
+      <h3>🔍 Filtros</h3>
+      <div class="filter-controls">
+        <input type="text" placeholder="Buscar cliente..." />
+        <select>
+          <option>Todos los estados</option>
+          <option>Activo</option>
+          <option>Inactivo</option>
+        </select>
+        <select>
+          <option>Todas las membresías</option>
+          <option>Básico</option>
+          <option>Premium</option>
+          <option>VIP</option>
+        </select>
+        <button>Limpiar Filtros</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tabla-clientes">
+    <h3>Lista de Clientes</h3>
+    <p>7 clientes encontrados</p>
+    <table>
+      <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Estado</th>
+        <th>Membresía</th>
+        <th>Fecha Vencimiento</th>
+        <th>Último Pago</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td><strong>Ana García</strong></td>
+        <td>ana@email.com</td>
+        <td><span class="estado activo">Activo</span></td>
+        <td><span class="membresia premium">Premium</span></td>
+        <td>14 jul 2024<br /><small>23 días restantes</small></td>
+        <td class="pago">$850</td>
+      </tr>
+      <tr>
+        <td><strong>Carlos López</strong></td>
+        <td>carlos@email.com</td>
+        <td><span class="estado activo">Activo</span></td>
+        <td><span class="membresia basico">Básico</span></td>
+        <td class="vencido">24 jun 2024<br /><small>3 días restantes</small></td>
+        <td class="pago">$650</td>
+      </tr>
+      <tr>
+        <td><strong>Isabel Torres</strong></td>
+        <td>isabel@email.com</td>
+        <td><span class="estado activo">Activo</span></td>
+        <td><span class="membresia vip">VIP</span></td>
+        <td>27 jun 2024<br /><small>6 días restantes</small></td>
+        <td class="pago">$1200</td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,229 @@
+/* 🌟 Estilos Punto de Venta - GoldGYM 🌟 */
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background-color: #0f1115;
+    color: #fff;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background: #1a1d23;
+    height: 100vh;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.logo img {
+    width: 70px;
+    border-radius: 50%;
+}
+.logo h2 {
+    color: #ffd700;
+    margin: 10px 0 0;
+}
+.logo p {
+    color: #aaa;
+    font-size: 0.9em;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar li {
+    margin: 15px 0;
+}
+.sidebar a {
+    color: #ccc;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active {
+    background-color: #ffd70022;
+    color: #ffd700;
+}
+.logout {
+    color: #ff4c4c;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Contenido */
+.main-content {
+    flex: 1;
+    padding: 25px 40px;
+    position: relative;
+}
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.topbar h1 {
+    font-size: 1.6em;
+    color: #ffd700;
+}
+.volver-btn {
+    background: #fff;
+    color: #222;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Filtros */
+.filtros {
+    margin-top: 20px;
+    background: #1a1d23;
+    padding: 20px;
+    border-radius: 12px;
+}
+.filtro-bar {
+    display: flex;
+    gap: 10px;
+}
+.filtro-bar input,
+.filtro-bar select {
+    flex: 1;
+    background: #0f1115;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* Productos */
+.productos {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+.producto {
+    background: #1a1d23;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+.producto:hover {
+    transform: translateY(-5px);
+}
+.producto img {
+    width: 100%;
+    border-radius: 10px;
+}
+.etiqueta {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #ffd700;
+    color: #000;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.8em;
+}
+.producto h3 {
+    margin: 10px 0 5px;
+    color: #fff;
+}
+.producto p {
+    color: #aaa;
+    font-size: 0.9em;
+}
+.precio {
+    color: #00ff99;
+    font-weight: 700;
+    display: block;
+    margin-top: 8px;
+}
+.stock {
+    font-size: 0.8em;
+    color: #888;
+}
+.btn-agregar {
+    background: #ffd700;
+    color: #000;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Carrito */
+.carrito {
+    background: #1a1d23;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 30px;
+}
+.carrito h2 {
+    color: #ffd700;
+}
+.carrito-vacio {
+    color: #777;
+    text-align: center;
+    margin: 20px 0;
+}
+.total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+.btn-confirmar {
+    background: #ffd700;
+    border: none;
+    color: #000;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Historial */
+.historial {
+    margin-top: 40px;
+    background: #1a1d23;
+    padding: 20px;
+    border-radius: 12px;
+}
+.historial h2 {
+    color: #ffd700;
+    margin-bottom: 15px;
+}
+.ventas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.venta {
+    flex: 1 1 220px;
+    background: #0f1115;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.venta h4 {
+    color: #fff;
+    margin: 0;
+}
+.venta span {
+    color: #00ff99;
+    font-weight: 600;
+}

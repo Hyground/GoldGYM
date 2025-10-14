@@ -1,0 +1,261 @@
+/* 🌙 Estilo general */
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: #0b0c10;
+    color: #fff;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background: #1a1d23;
+    height: 100vh;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.logo img {
+    width: 70px;
+    border-radius: 50%;
+}
+.logo h2 {
+    color: #ffd700;
+    margin: 10px 0 0;
+}
+.logo p {
+    color: #aaa;
+    font-size: 0.9em;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar li {
+    margin: 15px 0;
+}
+.sidebar a {
+    color: #ccc;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+.sidebar a:hover,
+.sidebar a.active {
+    background-color: #ffd70022;
+    color: #ffd700;
+}
+.logout {
+    color: #ff4c4c;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Contenido */
+.main-content {
+    flex: 1;
+    padding: 25px 40px;
+}
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.topbar h1 {
+    font-size: 1.8em;
+    color: #fff;
+}
+.topbar p {
+    color: #aaa;
+}
+.acciones {
+    display: flex;
+    gap: 10px;
+}
+.btn-secundario {
+    background: #fff;
+    border: none;
+    color: #222;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Hora */
+.hora-card {
+    margin-top: 25px;
+    background: linear-gradient(135deg, #3c1370, #142050);
+    border-radius: 16px;
+    padding: 25px;
+}
+.hora-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+.hora-info h3 {
+    color: #d0b3ff;
+    margin-bottom: 5px;
+}
+.hora h1 {
+    font-size: 2.5em;
+}
+.btn-turno {
+    margin-top: 10px;
+    background: transparent;
+    border: 2px solid #a47cf0;
+    color: #d6baff;
+    padding: 5px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Resumen */
+.resumen {
+    display: flex;
+    gap: 20px;
+    margin-top: 25px;
+}
+.card-resumen {
+    flex: 1;
+    background: #111319;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+}
+.icono {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+}
+.icono.green { background: #00d17a33; color: #00d17a; }
+.icono.yellow { background: #ffd70033; color: #ffd700; }
+.icono.blue { background: #1e90ff33; color: #1e90ff; }
+.card-resumen h2 {
+    margin: 10px 0;
+    color: #fff;
+}
+.card-resumen p {
+    color: #888;
+}
+.alerta { color: #ffd700; }
+
+/* Reportes */
+.reportes-grid {
+    display: flex;
+    gap: 25px;
+    margin-top: 40px;
+}
+.bloque {
+    flex: 1;
+    background: #111319;
+    border-radius: 16px;
+    padding: 20px;
+}
+.bloque.urgente {
+    border: 1px solid #ffd70055;
+    box-shadow: 0 0 10px #ffd70033;
+}
+.bloque h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+}
+.estado.ok {
+    background: #00d17a33;
+    color: #00d17a;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 0.8em;
+}
+.badge.alerta {
+    background: #ffd70033;
+    color: #ffd700;
+    padding: 3px 10px;
+    border-radius: 8px;
+}
+
+/* Lista */
+.lista {
+    margin-top: 15px;
+}
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0b0c10;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+}
+.estado {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+.verde { background: #00d17a; }
+.rojo { background: #ff4c4c; }
+.amarillo { background: #ffd700; }
+.info h4 { margin: 0; }
+.monto { font-weight: 600; color: #00d17a; }
+.texto-rojo { color: #ff4c4c; }
+.texto-amarillo { color: #ffd700; }
+.badge {
+    font-size: 0.75em;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-left: 5px;
+}
+.badge.basico { background: #333; color: #ccc; }
+.badge.premium { background: #552200; color: #ffb84d; }
+.badge.vip { background: #444000; color: #ffd700; }
+
+/* Membresías */
+.membresias {
+    margin-top: 40px;
+    background: #111319;
+    border-radius: 16px;
+    padding: 20px;
+}
+.planes {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+.plan {
+    background: #0b0c10;
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+    width: 200px;
+}
+.plan .circulo {
+    width: 25px;
+    height: 25px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+}
+.plan.basico .circulo { background: #555; }
+.plan.premium .circulo { background: #b85c00; }
+.plan.vip .circulo { background: #ffd700; }
+.cambio {
+    display: inline-block;
+    background: #222;
+    color: #ffd700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.8em;
+}

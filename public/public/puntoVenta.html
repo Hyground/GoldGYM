@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Punto de Venta - GoldGYM</title>
+    <link rel="stylesheet" href="../Styles/puntoVenta.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="logo">
+        <img src="../assets/logo.png" alt="GoldGYM">
+        <h2>GoldGYM</h2>
+        <p>Gestión diaria</p>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="#">📊 Dashboard</a></li>
+            <li><a href="#">👥 Gestión de Clientes</a></li>
+            <li><a href="#" class="active">🛒 Punto de Venta</a></li>
+            <li><a href="#">📈 Reportes</a></li>
+        </ul>
+    </nav>
+    <a href="#" class="logout">🚪 Cerrar sesión</a>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+    <header class="topbar">
+        <h1>Punto de Venta</h1>
+        <p>Sistema de ventas para empleados</p>
+        <button class="volver-btn">Volver al Dashboard</button>
+    </header>
+
+    <!-- Filtros -->
+    <section class="filtros">
+        <h2>🔍 Búsqueda y Filtros</h2>
+        <div class="filtro-bar">
+            <input type="text" placeholder="Buscar productos... (nombre, categoría, descripción)">
+            <select>
+                <option>Todas las categorías</option>
+                <option>Suplementos</option>
+                <option>Bebidas</option>
+                <option>Accesorios</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Productos -->
+    <section class="productos">
+        <div class="producto">
+            <img src="../assets/proteina.png" alt="Proteína Whey Premium">
+            <div class="etiqueta suplemento">Suplemento</div>
+            <h3>Proteína Whey Premium</h3>
+            <p>Proteína de suero de alta calidad</p>
+            <span class="precio">$850</span>
+            <p class="stock">Stock: 15</p>
+            <button class="btn-agregar">+ Agregar</button>
+        </div>
+
+        <div class="producto">
+            <img src="../assets/energy.png" alt="Bebida Energética">
+            <div class="etiqueta bebida">Energético</div>
+            <h3>Bebida Energética Red Power</h3>
+            <p>Bebida energética concentrada</p>
+            <span class="precio">$45</span>
+            <p class="stock">Stock: 8</p>
+            <button class="btn-agregar">+ Agregar</button>
+        </div>
+
+        <div class="producto">
+            <img src="../assets/botella.png" alt="Botella Premium">
+            <div class="etiqueta accesorio">Accesorio</div>
+            <h3>Botella de Agua Premium</h3>
+            <p>Botella reutilizable 750ml</p>
+            <span class="precio">$25</span>
+            <p class="stock">Stock: 45</p>
+            <button class="btn-agregar">+ Agregar</button>
+        </div>
+    </section>
+
+    <!-- Carrito -->
+    <aside class="carrito">
+        <h2>🛍️ Carrito de Compras</h2>
+        <div class="carrito-vacio">Tu carrito está vacío</div>
+        <div class="total">
+            <p>Total: <span>$0</span></p>
+            <button class="btn-confirmar">💰 Confirmar Venta</button>
+        </div>
+    </aside>
+
+    <!-- Historial -->
+    <section class="historial">
+        <h2>🕒 Historial de Ventas</h2>
+        <div class="ventas">
+            <div class="venta">
+                <h4>Ana García</h4>
+                <p>21 Jun - 14:30</p>
+                <span>$850</span>
+            </div>
+            <div class="venta">
+                <h4>Carlos López</h4>
+                <p>21 Jun - 13:15</p>
+                <span>$1520</span>
+            </div>
+            <div class="venta">
+                <h4>Isabel Torres</h4>
+                <p>20 Jun - 16:45</p>
+                <span>$1200</span>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
