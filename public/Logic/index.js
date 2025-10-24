@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
-
+          console.log('Respuesta de la API:', data);
             if (!response.ok) {
                 throw new Error(data.message || 'Credenciales incorrectas.');
             }

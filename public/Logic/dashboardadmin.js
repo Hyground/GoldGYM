@@ -384,9 +384,11 @@ async function handleProductFormSubmit(e) {
         }
     }
 
-    function displayTable(data, section) {
-        const table = document.createElement('table');
-        table.className = 'content-table';
+function displayTable(data, section) {
+         contentArea.innerHTML = ''; // <-- AÑADE ESTA LÍNEA AQUÍ
+     
+         const table = document.createElement('table');
+         table.className = 'content-table';
 
         // Check if the user has permission for editing/deleting (ADMIN or EMPLEADO)
         const canEditOrDelete = userRoles.includes('ADMINISTRADOR') || userRoles.includes('EMPLEADO');
@@ -446,6 +448,7 @@ async function handleProductFormSubmit(e) {
     }
 
     function displayMembresias(planes) {
+        contentArea.innerHTML = '';
         const grid = document.createElement('div');
         grid.className = 'membership-grid';
         grid.innerHTML = planes.map(plan => `
