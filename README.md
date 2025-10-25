@@ -29,23 +29,12 @@ El proyecto sigue esta estructura de carpetas, con la raíz en `/GOLGYM`:
 
 /GOLGYM (RAÍZ DEL PROYECTO) ├── index.html # Página principal / Login ├── dashboardadmin.html # Dashboard del Administrador ├── dashboardcliente.html # Dashboard del Cliente ├── /Logic # Contiene todo el JavaScript │ ├── dashboardadmin.js # Lógica del Admin (Funciones de tabla, Modales, CRUD) │ ├── dashboardcliente.js # Lógica del Cliente (Perfil, Membresía, Tienda) │ └── index.js # Lógica de Autenticación y Redirección └── /Styles # Hojas de estilo y diseño
 
+* **Arquitectura Modular:**
+* **Autenticación Basada en Roles:** Redirección automática a diferentes *dashboards* según el rol (`ADMINISTRADOR`, `CLIENTE`).
+* **Gestión de Entidades:** CRUD simulado para Clientes, Empleados y Administradores, con control de permisos.
+* **Inventario y POS:** Módulo de gestión de productos y punto de venta con lógica de carrito.
+* **Gestión de Pagos:** Panel visual para el estado de pago de los clientes (rojo, amarillo, verde).
 
----
+* 🤝 Contribución
+* Si encuentras bugs o tienes sugerencias de mejora, por favor abre un Issue en este repositorio.
 
-## ⚠️ Puntos Críticos y Soluciones
-
-### 1. Problema de Redirección (Logout)
-
-El error `Cannot GET /index.html` en el entorno de desarrollo local se soluciona usando la ruta relativa para salir de la carpeta `/Logic/`.
-
-**Control de Corrección en JS:**
-
-```javascript
-window.location.href = '../index.html';
-Esta ruta (..) fuerza al navegador a subir un nivel desde la carpeta /Logic/ para encontrar el archivo de inicio.
-
-2. Integración de la Sesión
-Para que el dashboard funcione, el archivo de login (index.js) debe asegurarse de guardar las IDs necesarias de la respuesta del servidor en el Session Storage (como authToken, username, userRoles, y clienteId o userId).
-
-🤝 Contribución
-Si encuentras bugs o tienes sugerencias de mejora, por favor abre un Issue en este repositorio.
