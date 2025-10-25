@@ -1,84 +1,206 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Empleado GoldGYM</title>
-    <link rel="stylesheet" href="../Styles/dashboardEmpleado.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Empleado | Gold Gym</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background-color: #0b0f19;
+            color: #e6e6e6;
+        }
+
+        /* ==== SIDEBAR ==== */
+        .sidebar {
+            width: 230px;
+            height: 100vh;
+            background-color: #141a2a;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin: 20px 0;
+            color: #d1a84a;
+            letter-spacing: 0.5px;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .menu li {
+            padding: 14px 25px;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 15px;
+        }
+
+        .menu li:hover,
+        .menu li.active {
+            background-color: #1b2236;
+            color: #d1a84a;
+        }
+
+        .logout {
+            text-align: center;
+            padding: 15px;
+            border-top: 1px solid #1f253a;
+            color: #b58ef7;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* ==== MAIN ==== */
+        main {
+            margin-left: 230px;
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #fff;
+        }
+
+        /* ==== CARDS ==== */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background-color: #151c2f;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .card h3 {
+            font-size: 15px;
+            color: #bbb;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .card p {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 8px 0 0 0;
+            color: #d1a84a;
+        }
+
+        /* ==== ACTIVITY ==== */
+        .activity {
+            margin-top: 20px;
+        }
+
+        .activity h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .activity-list {
+            background: #151c2f;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item span {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .activity-item strong {
+            color: #2e9d62;
+        }
+    </style>
 </head>
 <body>
+<!-- SIDEBAR -->
 <aside class="sidebar">
-    <div class="logo">
-        <img src="../assets/logo.png" alt="GoldGYM">
-        <h2>GoldGYM</h2>
-    </div>
-    <nav>
-        <ul>
-            <li><a href="#" class="active">📊 Dashboard</a></li>
-            <li><a href="gestionClientes.html">👥 Gestión de Clientes</a></li>
-            <li><a href="#">🛒 Punto de Venta</a></li>
-            <li><a href="#">📈 Reportes</a></li>
-            <li><a href="#" class="logout">🚪 Cerrar sesión</a></li>
+    <div>
+        <h2>Gold GYM</h2>
+        <ul class="menu">
+            <li class="active">Dashboard</li>
+            <li>Gestión de Clientes</li>
+            <li>Punto de Venta</li>
+            <li>Reportes</li>
         </ul>
-    </nav>
+    </div>
+    <div class="logout">Cerrar sesión</div>
 </aside>
 
-<main class="main-content">
-    <header class="topbar">
-        <h1>Panel de Control Diario</h1>
-        <div class="user-info">
-            <span class="user-name">Juan Pérez</span>
-            <img src="../assets/user.png" alt="Usuario" class="user-avatar">
-        </div>
-    </header>
+<!-- MAIN -->
+<main>
+    <h1>Dashboard Empleado</h1>
 
-    <section class="dashboard">
+    <section class="cards">
         <div class="card">
             <h3>Clientes Activos</h3>
-            <p id="clientesActivos">147</p>
+            <p>147</p>
+        </div>
+        <div class="card">
+            <h3>Pagos Hoy</h3>
+            <p>12</p>
+        </div>
+        <div class="card">
+            <h3>Próximas a Vencer</h3>
+            <p>8</p>
         </div>
         <div class="card">
             <h3>Ventas del Día</h3>
-            <p id="ventasHoy">$4200</p>
-        </div>
-        <div class="card">
-            <h3>Membresías Vencidas</h3>
-            <p id="membresiasVencidas">8</p>
-        </div>
-    </section>
-
-    <!-- 🟨 Nueva sección: Acciones rápidas -->
-    <section class="acciones-rapidas">
-        <h2>Acciones Rápidas</h2>
-        <div class="acciones-grid">
-            <button class="accion-btn azul">👤 Registrar Nuevo Cliente</button>
-            <button class="accion-btn verde">💵 Procesar Pago</button>
-            <button class="accion-btn morado">🛍️ Nueva Venta</button>
+            <p>Q2,100</p>
         </div>
     </section>
 
     <section class="activity">
-        <h2>Actividad Reciente</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Cliente</th>
-                <th>Actividad</th>
-                <th>Fecha</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>María López</td>
-                <td>Pago membresía</td>
-                <td>10/10/2025</td>
-            </tr>
-            </tbody>
-        </table>
+        <h2>Actividad del Día</h2>
+        <div class="activity-list">
+            <div class="activity-item">
+                <span>José Pérez — hace 5 min</span>
+                <strong>Q175</strong>
+            </div>
+            <div class="activity-item">
+                <span>María López — hace 12 min</span>
+                <strong>Q175</strong>
+            </div>
+            <div class="activity-item">
+                <span>Juan Carlos Morales — hace 20 min</span>
+                <strong>Q175</strong>
+            </div>
+            <div class="activity-item">
+                <span>Sofía Rodríguez — hace 45 min</span>
+                <strong>Q175</strong>
+            </div>
+            <div class="activity-item">
+                <span>Luis Martínez — hace 1 h</span>
+                <strong>Q175</strong>
+            </div>
+        </div>
     </section>
-
-    <script src="../Logic/dashboardEmpleado.js"></script>
 </main>
 </body>
 </html>

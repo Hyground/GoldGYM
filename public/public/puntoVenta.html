@@ -3,116 +3,359 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Punto de Venta - GoldGYM</title>
-    <link rel="stylesheet" href="../Styles/puntoVenta.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-</head>
+    <title>Punto de Venta | Gold Gym</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background-color: #0b0f19;
+            color: #e6e6e6;
+        }
 
+        /* ==== SIDEBAR ==== */
+        .sidebar {
+            width: 230px;
+            height: 100vh;
+            background-color: #141a2a;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin: 20px 0;
+            color: #d1a84a;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .menu li {
+            padding: 14px 25px;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 15px;
+        }
+
+        .menu li:hover,
+        .menu li.active {
+            background-color: #1b2236;
+            color: #d1a84a;
+        }
+
+        .logout {
+            text-align: center;
+            padding: 15px;
+            border-top: 1px solid #1f253a;
+            color: #b58ef7;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* ==== MAIN ==== */
+        main {
+            margin-left: 230px;
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        p.subtitle {
+            color: #aaa;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        /* ==== TOP STATUS ==== */
+        .status {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        .status span {
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .status .disp {
+            background-color: #22303f;
+            color: #5fd4ff;
+        }
+
+        .status .ventas {
+            background-color: #223a2a;
+            color: #5fd48f;
+        }
+
+        /* ==== GRID LAYOUT ==== */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+        }
+
+        /* ==== PRODUCTOS ==== */
+        .productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 18px;
+        }
+
+        .producto-card {
+            background-color: #151c2f;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .producto-card img {
+            width: 100%;
+            border-radius: 8px;
+            height: 130px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .producto-card h4 {
+            margin: 0;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .producto-card p {
+            margin: 3px 0 5px 0;
+            color: #bbb;
+            font-size: 13px;
+        }
+
+        .producto-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .precio {
+            color: #2e9d62;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .stock {
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .agregar-btn {
+            background-color: #d1a84a;
+            border: none;
+            color: #000;
+            font-weight: 600;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .agregar-btn:hover {
+            background-color: #c09842;
+        }
+
+        /* ==== CARRITO ==== */
+        .carrito {
+            background-color: #151c2f;
+            border-radius: 10px;
+            padding: 18px;
+            height: fit-content;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        .carrito h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 17px;
+            color: #f0f0f0;
+        }
+
+        .carrito p {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* ==== HISTORIAL ==== */
+        .historial {
+            margin-top: 40px;
+        }
+
+        .historial h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .ventas-lista {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 15px;
+        }
+
+        .venta-card {
+            background-color: #151c2f;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .venta-card span {
+            color: #bbb;
+            font-size: 13px;
+        }
+
+        .venta-card strong {
+            color: #2e9d62;
+        }
+    </style>
+</head>
 <body>
-<!-- Sidebar -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
-    <div class="logo">
-        <img src="../assets/logo.png" alt="GoldGYM">
-        <h2>GoldGYM</h2>
-        <p>Gestión diaria</p>
-    </div>
-    <nav>
-        <ul>
-            <li><a href="#">📊 Dashboard</a></li>
-            <li><a href="#">👥 Gestión de Clientes</a></li>
-            <li><a href="#" class="active">🛒 Punto de Venta</a></li>
-            <li><a href="#">📈 Reportes</a></li>
+    <div>
+        <h2>Gold GYM</h2>
+        <ul class="menu">
+            <li>Dashboard</li>
+            <li>Gestión de Clientes</li>
+            <li class="active">Punto de Venta</li>
+            <li>Reportes</li>
         </ul>
-    </nav>
-    <a href="#" class="logout">🚪 Cerrar sesión</a>
+    </div>
+    <div class="logout">Cerrar sesión</div>
 </aside>
 
-<!-- Main Content -->
-<main class="main-content">
-    <header class="topbar">
-        <h1>Punto de Venta</h1>
-        <p>Sistema de ventas para empleados</p>
-        <button class="volver-btn">Volver al Dashboard</button>
-    </header>
+<!-- MAIN -->
+<main>
+    <h1>Punto de Venta</h1>
+    <p class="subtitle">Sistema de ventas para empleados</p>
 
-    <!-- Filtros -->
-    <section class="filtros">
-        <h2>🔍 Búsqueda y Filtros</h2>
-        <div class="filtro-bar">
-            <input type="text" placeholder="Buscar productos... (nombre, categoría, descripción)">
-            <select>
-                <option>Todas las categorías</option>
-                <option>Suplementos</option>
-                <option>Bebidas</option>
-                <option>Accesorios</option>
-            </select>
-        </div>
-    </section>
+    <div class="status">
+        <span class="disp">8/8 disponibles</span>
+        <span class="ventas">Q4,740 en ventas</span>
+    </div>
 
-    <!-- Productos -->
-    <section class="productos">
-        <div class="producto">
-            <img src="../assets/proteina.png" alt="Proteína Whey Premium">
-            <div class="etiqueta suplemento">Suplemento</div>
-            <h3>Proteína Whey Premium</h3>
-            <p>Proteína de suero de alta calidad</p>
-            <span class="precio">$850</span>
-            <p class="stock">Stock: 15</p>
-            <button class="btn-agregar">+ Agregar</button>
-        </div>
+    <div class="grid">
+        <!-- Productos -->
+        <div>
+            <div class="productos">
+                <div class="producto-card">
+                    <img src="https://cdn.pixabay.com/photo/2017/09/30/15/10/protein-2805420_1280.jpg" alt="Proteína">
+                    <h4>Proteína Whey Premium</h4>
+                    <p>Suplemento de alta calidad para recuperación muscular.</p>
+                    <div class="producto-info">
+                        <span class="precio">Q850</span>
+                        <span class="stock">Stock: 15</span>
+                    </div>
+                    <button class="agregar-btn">Agregar</button>
+                </div>
 
-        <div class="producto">
-            <img src="../assets/energy.png" alt="Bebida Energética">
-            <div class="etiqueta bebida">Energético</div>
-            <h3>Bebida Energética Red Power</h3>
-            <p>Bebida energética concentrada</p>
-            <span class="precio">$45</span>
-            <p class="stock">Stock: 8</p>
-            <button class="btn-agregar">+ Agregar</button>
-        </div>
+                <div class="producto-card">
+                    <img src="https://cdn.pixabay.com/photo/2017/02/09/16/37/energy-drink-2056068_1280.jpg" alt="Energética">
+                    <h4>Bebida Energética Red Power</h4>
+                    <p>Bebida energizante natural sabor frutos rojos.</p>
+                    <div class="producto-info">
+                        <span class="precio">Q45</span>
+                        <span class="stock">Stock: 8</span>
+                    </div>
+                    <button class="agregar-btn">Agregar</button>
+                </div>
 
-        <div class="producto">
-            <img src="../assets/botella.png" alt="Botella Premium">
-            <div class="etiqueta accesorio">Accesorio</div>
-            <h3>Botella de Agua Premium</h3>
-            <p>Botella reutilizable 750ml</p>
-            <span class="precio">$25</span>
-            <p class="stock">Stock: 45</p>
-            <button class="btn-agregar">+ Agregar</button>
-        </div>
-    </section>
+                <div class="producto-card">
+                    <img src="https://cdn.pixabay.com/photo/2016/03/09/15/24/bottle-1246255_1280.jpg" alt="Agua">
+                    <h4>Botella de Agua Premium</h4>
+                    <p>Botella reutilizable de 750ml con tapa antiderrame.</p>
+                    <div class="producto-info">
+                        <span class="precio">Q25</span>
+                        <span class="stock">Stock: 45</span>
+                    </div>
+                    <button class="agregar-btn">Agregar</button>
+                </div>
 
-    <!-- Carrito -->
-    <aside class="carrito">
-        <h2>🛍️ Carrito de Compras</h2>
-        <div class="carrito-vacio">Tu carrito está vacío</div>
-        <div class="total">
-            <p>Total: <span>$0</span></p>
-            <button class="btn-confirmar">💰 Confirmar Venta</button>
-        </div>
-    </aside>
+                <div class="producto-card">
+                    <img src="https://cdn.pixabay.com/photo/2015/10/12/15/01/protein-983968_1280.jpg" alt="Preworkout">
+                    <h4>Pre-Workout Extreme</h4>
+                    <p>Fórmula pre-entreno con cafeína y aminoácidos.</p>
+                    <div class="producto-info">
+                        <span class="precio">Q950</span>
+                        <span class="stock">Stock: 18</span>
+                    </div>
+                    <button class="agregar-btn">Agregar</button>
+                </div>
 
-    <!-- Historial -->
-    <section class="historial">
-        <h2>🕒 Historial de Ventas</h2>
-        <div class="ventas">
-            <div class="venta">
-                <h4>Ana García</h4>
-                <p>21 Jun - 14:30</p>
-                <span>$850</span>
+                <div class="producto-card">
+                    <img src="https://cdn.pixabay.com/photo/2017/03/20/13/30/drink-2166056_1280.jpg" alt="Isotónico">
+                    <h4>Isotónico Hidratante</h4>
+                    <p>Bebida isotónica sabor cítrico con electrolitos.</p>
+                    <div class="producto-info">
+                        <span class="precio">Q35</span>
+                        <span class="stock">Stock: 28</span>
+                    </div>
+                    <button class="agregar-btn">Agregar</button>
+                </div>
             </div>
-            <div class="venta">
-                <h4>Carlos López</h4>
-                <p>21 Jun - 13:15</p>
-                <span>$1520</span>
-            </div>
-            <div class="venta">
-                <h4>Isabel Torres</h4>
-                <p>20 Jun - 16:45</p>
-                <span>$1200</span>
+
+            <!-- HISTORIAL -->
+            <div class="historial">
+                <h3>Historial de Ventas</h3>
+                <div class="ventas-lista">
+                    <div class="venta-card">
+                        <span>21 jun • 14:30</span><br>
+                        <strong>Q175</strong><br>
+                        <span>Cliente: Ana García</span>
+                    </div>
+                    <div class="venta-card">
+                        <span>21 jun • 13:15</span><br>
+                        <strong>Q175</strong><br>
+                        <span>Cliente: Carlos López</span>
+                    </div>
+                    <div class="venta-card">
+                        <span>21 jun • 11:45</span><br>
+                        <strong>Q175</strong><br>
+                        <span>Cliente: María Rodríguez</span>
+                    </div>
+                    <div class="venta-card">
+                        <span>21 jun • 10:20</span><br>
+                        <strong>Q175</strong><br>
+                        <span>Cliente: Luis Martín</span>
+                    </div>
+                    <div class="venta-card">
+                        <span>20 jun • 16:45</span><br>
+                        <strong>Q175</strong><br>
+                        <span>Cliente: Isabel Torres</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+
+        <!-- Carrito -->
+        <div class="carrito">
+            <h3>Carrito de Compras</h3>
+            <p>El carrito está vacío.<br>Agrega productos para comenzar.</p>
+        </div>
+    </div>
 </main>
 </body>
 </html>

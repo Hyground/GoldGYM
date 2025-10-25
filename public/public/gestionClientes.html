@@ -2,117 +2,362 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestión de Clientes</title>
-  <link rel="stylesheet" href="../Styles/gestionClientes.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestión de Clientes | Gold Gym</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: #0b0f19;
+      color: #e6e6e6;
+    }
+
+    /* ==== SIDEBAR ==== */
+    .sidebar {
+      width: 230px;
+      height: 100vh;
+      background-color: #141a2a;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin: 20px 0;
+      color: #d1a84a;
+      letter-spacing: 0.5px;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0;
+    }
+
+    .menu li {
+      padding: 14px 25px;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 15px;
+    }
+
+    .menu li:hover,
+    .menu li.active {
+      background-color: #1b2236;
+      color: #d1a84a;
+    }
+
+    .logout {
+      text-align: center;
+      padding: 15px;
+      border-top: 1px solid #1f253a;
+      color: #b58ef7;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* ==== MAIN ==== */
+    main {
+      margin-left: 230px;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    p.subtitle {
+      color: #aaa;
+      margin-top: 0;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    /* ==== LAYOUT ==== */
+    .grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: #151c2f;
+      border-radius: 10px;
+      padding: 18px 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 17px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      color: #f0f0f0;
+    }
+
+    /* ==== VENCIMIENTOS ==== */
+    .vencimiento {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alert-item {
+      background-color: #1c243a;
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: #ddd;
+    }
+
+    .alert-item span {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .alert-item .dias {
+      color: #ff6b6b;
+      font-weight: 600;
+    }
+
+    /* ==== FILTROS ==== */
+    .filtros {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .filtros input,
+    .filtros select {
+      background-color: #1e263b;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 10px;
+      color: #e6e6e6;
+      font-size: 13px;
+    }
+
+    .filtros button {
+      background-color: #2a3550;
+      border: none;
+      border-radius: 6px;
+      color: #ddd;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .filtros button:hover {
+      background-color: #364368;
+    }
+
+    /* ==== TABLA ==== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #151c2f;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #1e263b;
+      color: #aaa;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #101626;
+    }
+
+    /* ==== BADGES ==== */
+    .badge {
+      border-radius: 10px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .activo { background-color: #256e45; color: #fff; }
+    .inactivo { background-color: #a13737; color: #fff; }
+    .premium { background-color: #7e57c2; color: #fff; }
+    .vip { background-color: #bfa14a; color: #000; }
+    .basico { background-color: #555; color: #fff; }
+
+    .monto {
+      color: #2e9d62;
+      font-weight: 700;
+    }
+
+    .vencido {
+      color: #d66;
+      font-weight: 600;
+    }
+
+    .resumen {
+      color: #888;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    small.price {
+      display: block;
+      color: #bbb;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
+<!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="user-section">
-    <div class="user-icon">🟡</div>
-    <div>
-      <h3>Panel Empleado</h3>
-      <p>Gestión diaria</p>
-    </div>
+  <div>
+    <h2>Gold GYM</h2>
+    <ul class="menu">
+      <li>Dashboard</li>
+      <li class="active">Gestión de Clientes</li>
+      <li>Punto de Venta</li>
+      <li>Reportes</li>
+    </ul>
   </div>
-
-  <ul class="menu">
-    <li><a href="#">📊 Dashboard</a></li>
-    <li class="active"><a href="#">👥 Gestión de Clientes</a></li>
-    <li><a href="#">🛒 Punto de Venta</a></li>
-    <li><a href="#">📈 Reportes</a></li>
-  </ul>
-
-  <div class="logout">
-    <a href="#">Cerrar sesión</a>
-  </div>
+  <div class="logout">Cerrar sesión</div>
 </aside>
 
-<main class="content">
-  <header>
-    <h1>Gestión de Clientes</h1>
-    <p>Administra membresías y pagos de clientes</p>
-  </header>
+<!-- MAIN -->
+<main>
+  <h1>Gestión de Clientes</h1>
+  <p class="subtitle">Administra membresías y pagos de clientes</p>
 
-  <section class="top-section">
-    <div class="vencimientos">
-      <h3>⚠️ Próximos Vencimientos</h3>
-      <div class="card">
-        <p><strong>Carlos López</strong></p>
-        <p class="dias rojos">3 días</p>
-        <p>24 jun 2024</p>
-        <span class="membresia basico">Básico</span>
-      </div>
-      <div class="card">
-        <p><strong>Isabel Torres</strong></p>
-        <p class="dias amarillos">6 días</p>
-        <p>27 jun 2024</p>
-        <span class="membresia vip">VIP</span>
+  <div class="grid">
+    <!-- Próximos Vencimientos -->
+    <div class="card">
+      <h3>Próximos Vencimientos</h3>
+      <div class="vencimiento">
+        <div class="alert-item">
+          <span><strong>José Pérez</strong> <small>24 jun 2024</small></span>
+          <span><span class="dias">3 días</span> <small class="badge basico">Básico</small></span>
+        </div>
+        <div class="alert-item">
+          <span><strong>María López</strong> <small>27 jun 2024</small></span>
+          <span><span class="dias">6 días</span> <small class="badge vip">VIP</small></span>
+        </div>
       </div>
     </div>
 
-    <div class="filtros">
-      <h3>🔍 Filtros</h3>
-      <div class="filter-controls">
-        <input type="text" placeholder="Buscar cliente..." />
-        <select>
-          <option>Todos los estados</option>
-          <option>Activo</option>
-          <option>Inactivo</option>
-        </select>
-        <select>
-          <option>Todas las membresías</option>
-          <option>Básico</option>
-          <option>Premium</option>
-          <option>VIP</option>
-        </select>
-        <button>Limpiar Filtros</button>
+    <!-- Lista de clientes -->
+    <div>
+      <div class="card" style="margin-bottom:18px;">
+        <h3>Filtros</h3>
+        <div class="filtros">
+          <input type="text" placeholder="Buscar cliente...">
+          <select>
+            <option>Todos los estados</option>
+            <option>Activos</option>
+            <option>Inactivos</option>
+          </select>
+          <select>
+            <option>Todas las membresías</option>
+            <option>Básico</option>
+            <option>Premium</option>
+            <option>VIP</option>
+          </select>
+          <button>Limpiar Filtros</button>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <section class="tabla-clientes">
-    <h3>Lista de Clientes</h3>
-    <p>7 clientes encontrados</p>
-    <table>
-      <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Email</th>
-        <th>Estado</th>
-        <th>Membresía</th>
-        <th>Fecha Vencimiento</th>
-        <th>Último Pago</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td><strong>Ana García</strong></td>
-        <td>ana@email.com</td>
-        <td><span class="estado activo">Activo</span></td>
-        <td><span class="membresia premium">Premium</span></td>
-        <td>14 jul 2024<br /><small>23 días restantes</small></td>
-        <td class="pago">$850</td>
-      </tr>
-      <tr>
-        <td><strong>Carlos López</strong></td>
-        <td>carlos@email.com</td>
-        <td><span class="estado activo">Activo</span></td>
-        <td><span class="membresia basico">Básico</span></td>
-        <td class="vencido">24 jun 2024<br /><small>3 días restantes</small></td>
-        <td class="pago">$650</td>
-      </tr>
-      <tr>
-        <td><strong>Isabel Torres</strong></td>
-        <td>isabel@email.com</td>
-        <td><span class="estado activo">Activo</span></td>
-        <td><span class="membresia vip">VIP</span></td>
-        <td>27 jun 2024<br /><small>6 días restantes</small></td>
-        <td class="pago">$1200</td>
-      </tr>
-      </tbody>
-    </table>
-  </section>
-</main>
-</body>
-</html>
+      <div class="card">
+        <h3>Lista de Clientes</h3>
+        <table>
+          <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Membresía (precio)</th>
+            <th>Fecha Vencimiento</th>
+            <th>Último Pago</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>José Pérez</td>
+            <td>jose.perez@email.gt</td>
+            <td><span class="badge activo">Activo</span></td>
+            <td><span class="badge basico">Básico</span><small class="price">Q175 / mes</small></td>
+            <td>14 jul 2024<br><small style="color:#aaa;">23 días restantes</small></td>
+            <td class="monto">Q175</td>
+          </tr>
+
+          <tr>
+            <td>María López</td>
+            <td>maria.lopez@email.gt</td>
+            <td><span class="badge activo">Activo</span></td>
+            <td><span class="badge vip">VIP</span><small class="price">Q175 / mes</small></td>
+            <td style="color:#d66;">24 jun 2024<br><small>3 días restantes</small></td>
+            <td class="monto">Q175</td>
+          </tr>
+
+          <tr>
+            <td>Juan Carlos Morales</td>
+            <td>juancarlos.morales@email.gt</td>
+            <td><span class="badge inactivo">Inactivo</span></td>
+            <td><span class="badge vip">VIP</span><small class="price">Q175 / mes</small></td>
+            <td>09 ago 2024<br><small style="color:#aaa;">49 días restantes</small></td>
+            <td class="monto">Q175</td>
+          </tr>
+
+          <tr>
+            <td>Carlos López</td>
+            <td>carlos.lopez@email.gt</td>
+            <td><span class="badge activo">Activo</span></td>
+            <td><span class="badge premium">Premium</span><small class="price">Q175 / mes</small></td>
+            <td style="color:#d66;">19 jun 2024<br><small>Vencido hace 2 días</small></td>
+            <td class="monto">Q175</td>
+          </tr>
+
+          <tr>
+            <td>Ana María González</td>
+            <td>ana.gonzalez@email.gt</td>
+            <td><span class="badge activo">Activo</span></td>
+            <td><span class="badge basico">Básico</span><small class="price">Q175 / mes</small></td>
+            <td>27 jun 2024<br><small style="color:#aaa;">6 días restantes</small></td>
+            <td class="monto">Q175</td>
+          </tr>
+
+          <tr>
+            <td>Luis Martínez</td>
+            <td>luis.martinez@email.gt</td>
+            <td><span class="badge activo">Activo</span></td>
+            <td><span class="badge premium">Premium</span><small class="price">Q175 / mes</small></td>
+            <td>01 jul 2024<br><small style="color:#aaa;">10 días restantes</small></td>
+            <td class="monto">Q175</td>
+          </tr>
+
+          <tr>
+            <td>Sofía Rodríguez</td>
+            <td>sofia.rodriguez@email.gt</td>
+            <td><span class="badge activo">Activo</span></td>
+            <td><span class="badge vip">VIP</span><small class="price">Q175 / mes</small></td>
+            <td>05 jul 2024<br><small style="color:#aaa;">14 días restantes</small></td>
+            <td class="monto">Q175</td>
+          </tr>
+          </tbody>
+        </table>
+        <p class="resumen">7 clientes encontrados</p>
+        <
