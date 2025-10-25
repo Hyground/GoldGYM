@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM REFERENCES ---
+    // --- Referencias DOM ---
     const themeToggleButton = document.getElementById('theme-toggle-btn');
     const usernameDisplay = document.getElementById('username-display');
     const logoutButton = document.getElementById('logout');
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionTitle = document.getElementById('section-title');
     const navLinks = document.querySelectorAll('.sidebar-nav a');
     const fab = document.getElementById('fab');
-    // Modals
+    // Modales
     const unifiedModal = document.getElementById('unified-modal');
     const modalTitle = document.getElementById('modal-title');
     const modalBody = document.getElementById('modal-body');
@@ -16,411 +16,470 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteModalText = document.getElementById('delete-modal-text');
     const confirmDeleteButton = document.getElementById('confirm-delete-button');
     const cancelDeleteButton = document.getElementById('cancel-delete-button');
+    const closeDeleteModalBtn = document.getElementById('close-delete-modal-btn');
 
-    // --- STATE ---
-    const API_BASE_URL = 'https://goldgymapi-3.onrender.com/api';
+    // --- Estado y Constantes (AHORA DENTRO DEL SCOPE) ---
+    const API_BASE_URL = 'http://localhost:8080/api'; // API Local
     const token = sessionStorage.getItem('authToken');
     const username = sessionStorage.getItem('username');
-    const userRoles = JSON.parse(sessionStorage.getItem('userRoles') || '[]'); // Obtener la lista de roles
+    // *** IMPORTANTE: Asegúrate que tu index.js guarde 'userId' en sessionStorage al hacer login ***
+    const loggedInUserId = sessionStorage.getItem('userId');
+    const userRoles = JSON.parse(sessionStorage.getItem('userRoles') || '[]');
 
-    let cart = []; // POS cart state
+    let cart = []; // Estado del carrito POS
     let currentIdToDelete = null;
     let currentSectionForDelete = null;
-    let productsCache = []; // Cache for products in POS
+    let productsCache = []; // Caché de productos
 
-    // --- INITIALIZATION ---
-    if (!token) { window.location.href = 'index.html'; return; }
+    // --- Inicialización ---
+    if (!token) {
+        console.error("No se encontró token, redirigiendo al login.");
+        try {
+            // Usar ruta absoluta asumiento que index.html está en la raíz
+            window.location.href = '/index.html';
+        } catch (e) {
+            console.error("Fallo al redirigir:", e);
+            alert("Error de autenticación. Vuelve a la página de inicio.");
+        }
+        return; // Detener ejecución
+    }
+    console.log("Token encontrado, inicializando dashboard...");
+    console.log("Usuario:", username);
+    console.log("Roles:", userRoles);
+    console.log("ID Usuario Logueado:", loggedInUserId);
+
     initializeUI();
     initializeEventListeners();
     loadContent('clientes'); // Carga inicial
 
-    // --- INITIALIZERS ---
+    // --- Inicializadores ---
     function initializeUI() {
-        usernameDisplay.textContent = username || 'Usuario'; // Mostrar 'Usuario' si no hay nombre
-        // Ocultar el FAB si el rol no tiene permiso para crear
-        // Solo Admin puede crear entidades principales
-        if (!userRoles.includes('ADMINISTRADOR')) {
-             if (fab) fab.style.display = 'none';
-        }
+        if (usernameDisplay) usernameDisplay.textContent = username || 'Usuario';
+        if (fab && !userRoles.includes('ADMINISTRADOR')) fab.style.display = 'none';
+        applyLogoutButtonStyles(); // Aplicar estilos al botón
+        console.log("UI Inicializada.");
     }
 
     function initializeEventListeners() {
-        if(themeToggleButton) themeToggleButton.addEventListener('click', () => typeof toggleTheme === 'function' && toggleTheme());
-        if(logoutButton) logoutButton.addEventListener('click', (e) => { e.preventDefault(); sessionStorage.clear(); window.location.href = 'index.html'; });
+        if (themeToggleButton) themeToggleButton.addEventListener('click', () => typeof toggleTheme === 'function' && toggleTheme());
+        if (logoutButton) logoutButton.addEventListener('click', (e) => { e.preventDefault(); sessionStorage.clear(); window.location.href = '/index.html'; }); // Ruta absoluta
         navLinks.forEach(link => link.addEventListener('click', handleNavClick));
         if (fab) fab.addEventListener('click', handleFabClick);
-        // Modals
-        if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-        if(unifiedModal) unifiedModal.addEventListener('click', e => { if (e.target === unifiedModal) closeModal(); });
+        // Modales
+        if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+        if (unifiedModal) unifiedModal.addEventListener('click', e => { if (e.target === unifiedModal) closeModal(); });
         if (deleteModal) deleteModal.addEventListener('click', e => { if (e.target === deleteModal) cerrarModalEliminacion(); });
-         // Corregido: Referencia al botón de cerrar del modal de eliminación
-         const closeDeleteModalBtn = document.getElementById('close-delete-modal-btn');
-         if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', cerrarModalEliminacion);
+        if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', cerrarModalEliminacion);
         if (cancelDeleteButton) cancelDeleteButton.addEventListener('click', cerrarModalEliminacion);
         if (confirmDeleteButton) confirmDeleteButton.addEventListener('click', confirmarEliminacion);
-        // Content Area Delegation
-        if(contentArea) contentArea.addEventListener('click', handleContentAreaClick);
+        // Delegación de eventos
+        if (contentArea) contentArea.addEventListener('click', handleContentAreaClick);
+        console.log("Listeners de Eventos Inicializados.");
     }
 
-    // --- EVENT HANDLERS ---
+    function applyLogoutButtonStyles() {
+        if (logoutButton) {
+            logoutButton.style.display = 'inline-flex'; logoutButton.style.alignItems = 'center';
+            logoutButton.style.padding = '8px 12px'; logoutButton.style.borderRadius = 'var(--border-radius)';
+            logoutButton.style.backgroundColor = 'var(--bg-secondary)'; logoutButton.style.color = 'var(--text-secondary)';
+            logoutButton.style.textDecoration = 'none'; logoutButton.style.border = 'none';
+            logoutButton.style.cursor = 'pointer'; logoutButton.style.transition = 'background-color 0.2s';
+            logoutButton.onmouseover = () => { logoutButton.style.backgroundColor = 'var(--bg-tertiary)'; };
+            logoutButton.onmouseout = () => { logoutButton.style.backgroundColor = 'var(--bg-secondary)'; };
+            const icon = logoutButton.querySelector('.material-icons');
+            if (icon) icon.style.marginRight = '8px';
+        }
+    }
+
+    // --- Manejadores de Eventos ---
     function handleNavClick(e) {
         e.preventDefault();
         navLinks.forEach(l => l.classList.remove('active'));
         this.classList.add('active');
         const section = this.dataset.section;
-        console.log(`Navegando a la sección: ${section}`); // Log de depuración
+        console.log(`Navegando a la sección: ${section}`);
         loadContent(section);
     }
 
     function handleFabClick() {
         const sectionLink = document.querySelector('.sidebar-nav a.active');
-        if (!sectionLink) return; // Salir si no hay sección activa
+        if (!sectionLink) return;
         const section = sectionLink.dataset.section;
-
-        console.log(`FAB clickeado en sección: ${section}`); // Log
-
-        // Solo permitir crear desde FAB si eres ADMIN
-        if (!userRoles.includes('ADMINISTRADOR')) {
-             alert('No tienes permiso para crear.');
-             return;
-        }
-
-        // El modal unificado maneja la creación de Cliente, Empleado y Admin
-        if (section === 'clientes' || section === 'empleados' || section === 'administradores') {
-            showPersonaModal(null, section); // Pasar la sección actual
-        } else if (section === 'membresias') {
-            showMembresiaModal();
-        } else if (section === 'productos') {
-            showProductModal();
-        } else if (section === 'pagos') {
-            // Ya no se usa FAB para pagos, el botón está en la sección
-             console.warn("FAB clickeado en Pagos, pero el botón está dentro de la sección.");
-            // showPagoRegistroModal(); // Podría llamarse, pero es redundante
-        } else {
-             console.warn(`Sección desconocida para FAB: ${section}`);
-        }
+        console.log(`FAB clickeado en sección: ${section}`);
+        if (!userRoles.includes('ADMINISTRADOR')) { alert('No tienes permiso para crear.'); return; }
+        if (section === 'clientes' || section === 'empleados' || section === 'administradores') showPersonaModal(null, section);
+        else if (section === 'membresias') showMembresiaModal();
+        else if (section === 'productos') showProductModal();
+        else { console.warn(`Sección ${section} sin acción FAB.`); alert('No se puede crear desde aquí.'); }
     }
 
     async function handleContentAreaClick(e) {
         const editBtn = e.target.closest('.btn-edit');
         const deleteBtn = e.target.closest('.btn-delete');
-        const productCardForCart = e.target.closest('.product-card.pos-view'); // Específico para añadir al carrito
-        const productCardForAdmin = e.target.closest('.product-card.market-view'); // Específico para la vista de admin
-
+        const productCardForCart = e.target.closest('.product-card.pos-view');
         const sectionLink = document.querySelector('.sidebar-nav a.active');
         if (!sectionLink) return;
         const section = sectionLink.dataset.section;
 
         if (editBtn) {
             const id = editBtn.dataset.id;
-             console.log(`Botón Editar presionado: ID=${id}, Sección=${section}`); // Log
+            console.log(`Botón Editar: ID=${id}, Sección=${section}`);
             handleEdit(id, section);
         } else if (deleteBtn) {
             const id = deleteBtn.dataset.id;
-             console.log(`Botón Eliminar presionado: ID=${id}, Sección=${section}`); // Log
-            let name = 'elemento'; // Default name
-
-            // Intentar obtener un nombre más descriptivo
-            const card = deleteBtn.closest('.membership-card') || deleteBtn.closest('.payment-client-card') || deleteBtn.closest('.product-card');
+            console.log(`Botón Eliminar: ID=${id}, Sección=${section}`);
+            let name = 'elemento';
+            const card = deleteBtn.closest('.membership-card, .payment-client-card, .product-card');
             const tableRow = deleteBtn.closest('tr');
-
-            if (card) {
-                name = card.querySelector('h3, h4')?.textContent || `ID ${id}`; // Buscar h3 o h4
-            } else if (tableRow) {
-                 const nameCell = tableRow.querySelector('td:nth-child(2)'); // Nombre suele estar en la 2da celda
-                 name = nameCell?.textContent || `ID ${id}`;
-                 if (!nameCell?.textContent && section === 'administradores') {
-                      const usernameCell = tableRow.querySelector('td:nth-child(4)'); // Username es 4ta celda en tabla admin
-                      name = usernameCell?.textContent || `ID ${id}`;
-                 }
-            } else {
-                 name = `ID ${id}`; // Fallback
-            }
-
-             console.log(`Mostrando modal de eliminación para: ${name}`); // Log
+            if (card) name = card.querySelector('h3, h4')?.textContent || `ID ${id}`;
+            else if (tableRow) {
+                const nameCell = tableRow.querySelector('td:nth-child(2)');
+                name = nameCell?.textContent || `ID ${id}`;
+                if (!nameCell?.textContent && section === 'administradores') {
+                    const usernameCell = tableRow.querySelector('td:nth-child(4)');
+                    name = usernameCell?.textContent || `ID ${id}`;
+                }
+            } else name = `ID ${id}`;
+            console.log(`Mostrando modal eliminación para: ${name}`);
             mostrarModalEliminacion(id, name, section);
-
-        } else if (productCardForCart && section === 'ventas') { // Añadir al carrito desde POS
-             const id = productCardForCart.dataset.id;
-             const product = productsCache.find(p => p.id == id);
-             if (product && product.stockCantidad > 0) {
-                  console.log(`Añadiendo al carrito: ${product.nombre}`); // Log
-                  addToCart(product);
-             } else if (product) {
-                  alert(`"${product.nombre}" está agotado.`);
-             }
+        } else if (productCardForCart && section === 'ventas') {
+            const id = productCardForCart.dataset.id;
+            const product = productsCache.find(p => p.id == id);
+            if (product && product.stockCantidad > 0) { console.log(`Añadiendo al carrito: ${product.nombre}`); addToCart(product); }
+            else if (product) alert(`"${product.nombre}" está agotado.`);
         }
-        // No hacer nada si se clickea en productCardForAdmin (la vista de admin no añade al carrito)
     }
 
+    // --- Lógica Principal de Carga ---
+    async function loadContent(section) {
+        console.log(`Iniciando carga de contenido para: ${section}`);
+        let titleText = section.charAt(0).toUpperCase() + section.slice(1);
+        if (section === 'membresias') titleText = 'Planes de Membresía';
+        if (section === 'productos') titleText = 'Gestión de Inventario';
+        if (section === 'ventas') titleText = 'Punto de Venta (POS)';
+        if (section === 'pagos') titleText = 'Gestión de Pagos';
+        if (section === 'administradores') titleText = 'Gestión de Administradores';
+        if(sectionTitle) sectionTitle.textContent = titleText;
+        if(contentArea) contentArea.innerHTML = '<div class="loading-spinner"></div>';
+        if(fab) fab.style.display = (userRoles.includes('ADMINISTRADOR') && section !== 'ventas' && section !== 'pagos') ? 'block' : 'none';
 
-    // Nueva función para llenar la barra lateral de vencimientos (si existe)
-    function displayVencimientos(clientesStatus) {
-        const container = document.getElementById('vencimientos-proximos');
-        if (!container) return; // Salir si el elemento no existe en la sección actual
-        console.log("Actualizando sección de vencimientos..."); // Log
-
-        const warningClients = clientesStatus.filter(c => c.estadoPago === 'AMARILLO' || c.estadoPago === 'ROJO');
-
-        if (warningClients.length === 0) {
-            container.innerHTML = '<p class="status-verde">¡Todos los clientes están al día!</p>';
-            return;
+        try {
+            let data;
+            switch (section) {
+                case 'ventas': await setupPOSInterface(); break;
+                case 'pagos': await loadPagosSection(); break;
+                case 'productos': await setupProductMarket(); break;
+                case 'membresias': data = await fetchAPI('/planes/analiticas'); displayMembresias(data); break;
+                case 'administradores': await loadAdministradores(); break;
+                case 'clientes': data = await fetchAPI('/clientes'); displayTableClientes(data); break; // Usa display específico
+                case 'empleados': data = await fetchAPI('/empleados'); displayTableEmpleados(data); break; // Usa display específico
+                default: throw new Error(`Sección desconocida: ${section}`);
+            }
+            console.log(`Contenido cargado para: ${section}`);
+        } catch (error) {
+            showError(contentArea, `Error al cargar ${titleText}`, error);
         }
+    }
 
-        container.innerHTML = warningClients.map(c => {
-            const dateText = c.fechaVencimiento ? new Date(c.fechaVencimiento).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : 'N/A';
-            return `
-            <div class="vencimiento-item status-${c.estadoPago.toLowerCase()}">
-                <span>${c.nombreCompleto}</span>
-                <span class="vencimiento-date">${dateText}</span>
-            </div>
-            `;
+    // --- Lógica de API ---
+    async function fetchAPI(endpoint, options = {}) {
+        if (!token) {
+             console.error("[fetchAPI] No token.");
+             alert("Error de autenticación.");
+             sessionStorage.clear(); window.location.href = '/index.html';
+             throw new Error("Missing auth token");
+        }
+        console.log(`[fetchAPI] ${options.method || 'GET'} ${endpoint}`);
+        const defaultHeaders = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+        const config = { ...options, headers: { ...defaultHeaders, ...options.headers } };
+        if (config.body && typeof config.body === 'object') {
+            try { config.body = JSON.stringify(config.body); } catch (e) { console.error("[fetchAPI] Error stringify body:", e); throw new Error("Error interno."); }
+        }
+        let response;
+        try {
+            response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+            console.log(`[fetchAPI] Respuesta ${endpoint}: Status ${response.status}`);
+            if (response.status === 204) return null;
+            const responseText = await response.text();
+            if (!response.ok) {
+                let errorJson = null; let errorMessage = `Error ${response.status}`;
+                try { errorJson = JSON.parse(responseText); errorMessage = errorJson.message || errorJson.error || JSON.stringify(errorJson); }
+                catch (e) { errorMessage = responseText || response.statusText || `Status ${response.status}`; }
+                console.error(`[fetchAPI] Error ${response.status} (${endpoint}): ${errorMessage}`, errorJson || responseText);
+                const error = new Error(errorMessage); error.status = response.status; error.details = errorJson || responseText;
+                throw error;
+            }
+            if (!responseText) return null;
+            try { return JSON.parse(responseText); } catch (e) { console.error(`[fetchAPI] Error parse JSON ${endpoint}:`, e, `Texto: ${responseText}`); throw new Error("Error procesando respuesta."); }
+        } catch (error) {
+            console.error(`[fetchAPI] Error general ${endpoint}:`, error);
+            if (error instanceof TypeError && (error.message.includes("fetch") || error.message.includes("NetworkError"))) {
+                 throw new Error("Error de red: No se pudo conectar con la API.");
+            }
+            throw error;
+        }
+    }
+
+    // --- Lógica de Clientes ---
+    async function loadClientes() {
+        console.log("[Clientes] Cargando lista...");
+        const clientes = await fetchAPI('/clientes');
+        displayTableClientes(clientes);
+    }
+    function displayTableClientes(data) {
+        if (!contentArea) { console.error("[Clientes] contentArea no definido"); return; }
+        contentArea.innerHTML = '';
+        console.log(`[Clientes] Renderizando tabla con ${data?.length || 0} clientes.`);
+        if (!data || data.length === 0) { contentArea.innerHTML = `<p>No hay clientes.</p>`; return; }
+        const table = document.createElement('table'); table.className = 'content-table';
+        const canEditOrDelete = userRoles.includes('ADMINISTRADOR');
+        let headers = ['ID', 'Nombre', 'Email', 'Código', 'Activo', 'Acciones'];
+        if (!canEditOrDelete) headers = headers.filter(h => h !== 'Acciones');
+        const rows = data.map(item => {
+            const isActive = item.activo !== false; const activeStatus = isActive ? 'Activo' : 'Inactivo'; const statusClass = isActive ? 'status-activo' : 'status-inactivo';
+            const nombreCompleto = item.nombrePersona || `${item.nombre || ''} ${item.apellido || ''}`.trim() || 'N/A';
+            const email = item.emailPersona || item.correo || 'N/A';
+            const commonCells = `<td>${item.id}</td><td>${nombreCompleto}</td><td>${email}</td>`;
+            const specificCells = `<td>${item.codigoCliente || 'N/A'}</td><td><span class="status-badge ${statusClass}">${activeStatus}</span></td>`;
+            let actionCells = '';
+            if (canEditOrDelete) actionCells = `<td class="action-cell"><button class="action-btn btn-edit" data-id="${item.id}" title="Editar"><i class="material-icons">edit</i></button><button class="action-btn btn-delete" data-id="${item.id}" title="Eliminar"><i class="material-icons">delete</i></button></td>`;
+            return `<tr>${commonCells}${specificCells}${actionCells}</tr>`;
+        }).join('');
+        table.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody>`;
+        contentArea.appendChild(table); console.log(`[Clientes] Tabla renderizada.`);
+    }
+
+    // --- Lógica de Empleados ---
+    async function loadEmpleados() {
+        console.log("[Empleados] Cargando lista...");
+        const empleados = await fetchAPI('/empleados');
+        displayTableEmpleados(empleados);
+    }
+    function displayTableEmpleados(data) {
+        if (!contentArea) { console.error("[Empleados] contentArea no definido"); return; }
+        contentArea.innerHTML = '';
+        console.log(`[Empleados] Renderizando tabla con ${data?.length || 0} empleados.`);
+        if (!data || data.length === 0) { contentArea.innerHTML = `<p>No hay empleados.</p>`; return; }
+        const table = document.createElement('table'); table.className = 'content-table';
+        const canEditOrDelete = userRoles.includes('ADMINISTRADOR');
+        let headers = ['ID', 'Nombre', 'Email', 'Salario', 'Contratación', 'Activo', 'Acciones'];
+        if (!canEditOrDelete) headers = headers.filter(h => h !== 'Acciones');
+        const rows = data.map(item => {
+            const isActive = item.activo !== false; const activeStatus = isActive ? 'Activo' : 'Inactivo'; const statusClass = isActive ? 'status-activo' : 'status-inactivo';
+            const nombreCompleto = item.nombrePersona || `${item.nombre || ''} ${item.apellido || ''}`.trim() || 'N/A';
+            const email = item.emailPersona || item.correo || 'N/A';
+            const commonCells = `<td>${item.id}</td><td>${nombreCompleto}</td><td>${email}</td>`;
+            const salarioFormatted = item.salario != null ? `Q${Number(item.salario).toFixed(2)}` : 'N/A';
+            const fechaContratacionFormatted = formatDisplayDate(item.fechaContratacion);
+            const specificCells = `<td>${salarioFormatted}</td><td>${fechaContratacionFormatted}</td><td><span class="status-badge ${statusClass}">${activeStatus}</span></td>`;
+            let actionCells = '';
+            if (canEditOrDelete) actionCells = `<td class="action-cell"><button class="action-btn btn-edit" data-id="${item.id}" title="Editar"><i class="material-icons">edit</i></button><button class="action-btn btn-delete" data-id="${item.id}" title="Eliminar"><i class="material-icons">delete</i></button></td>`;
+            return `<tr>${commonCells}${specificCells}${actionCells}</tr>`;
+        }).join('');
+        table.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody>`;
+        contentArea.appendChild(table); console.log(`[Empleados] Tabla renderizada.`);
+    }
+
+    // --- Lógica de Administradores ---
+    async function loadAdministradores() {
+        console.log("[Admin] Cargando lista...");
+        const usuarios = await fetchAPI('/usuarios'); // Espera List<UsuarioResponseDTO>
+        console.log("[Admin] Usuarios recibidos:", usuarios);
+        const administradores = usuarios.filter(user => user.roles?.includes('ADMINISTRADOR'));
+        console.log("[Admin] Admins filtrados:", administradores);
+        displayAdministradoresTable(administradores);
+    }
+    function displayAdministradoresTable(admins) {
+        if (!contentArea) { console.error("[Admin] contentArea no definido"); return; }
+        contentArea.innerHTML = '';
+        console.log(`[Admin] Renderizando tabla con ${admins?.length || 0} admins.`);
+        if (!admins || admins.length === 0) { contentArea.innerHTML = '<p>No hay admins.</p>'; return; }
+        const table = document.createElement('table'); table.className = 'content-table';
+        const canEditOrDelete = userRoles.includes('ADMINISTRADOR');
+        let headers = ['ID', 'Nombre', 'Email', 'Username', 'Activo', 'Acciones'];
+        if (!canEditOrDelete) headers = headers.filter(h => h !== 'Acciones');
+        const rows = admins.map(admin => {
+            const nombreCompleto = admin.nombrePersona || 'N/A'; const email = admin.emailPersona || 'N/A'; const username = admin.username || 'N/A';
+            const isActive = admin.activo !== false; const activeStatus = isActive ? 'Activo' : 'Inactivo'; const statusClass = isActive ? 'status-activo' : 'status-inactivo';
+            const cells = `<td>${admin.id}</td><td>${nombreCompleto}</td><td>${email}</td><td>${username}</td><td><span class="status-badge ${statusClass}">${activeStatus}</span></td>`;
+            let actionCells = '';
+            if (canEditOrDelete) {
+                const disableDelete = loggedInUserId && admin.id == loggedInUserId;
+                actionCells = `<td class="action-cell"><button class="action-btn btn-edit" data-id="${admin.id}" title="Editar"><i class="material-icons">edit</i></button><button class="action-btn btn-delete" data-id="${admin.id}" title="${disableDelete ? 'No puedes eliminarte' : 'Eliminar'}" ${disableDelete ? 'disabled' : ''}><i class="material-icons">delete</i></button></td>`;
+            }
+            return `<tr>${cells}${actionCells}</tr>`;
+        }).join('');
+        table.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody>`;
+        contentArea.appendChild(table); console.log("[Admin] Tabla renderizada.");
+    }
+
+    // --- Lógica de Productos ---
+    async function setupProductMarket() {
+        console.log("Configurando Market...");
+        contentArea.innerHTML = `<div class="market-container"><div class="market-sidebar"><div class="card market-filters"><h3>Filtros</h3><div class="form-group full-width"><label for="search-input">Buscar</label><input type="text" id="search-input" class="input" placeholder="..."></div><div class="form-group full-width"><label for="category-filter">Categoría</label><select id="category-filter" class="input"><option value="">Todas</option><option value="SUPLEMENTO">Suplementos</option><option value="BEBIDA">Bebidas</option><option value="SNACK">Snacks</option><option value="EQUIPO">Equipo</option></select></div><div class="form-group full-width"><label for="stock-filter">Stock</label><select id="stock-filter" class="input"><option value="">Todo</option><option value="DISPONIBLE">Disponible</option><option value="ALERTA">Alerta</option><option value="AGOTADO">Agotado</option></select></div><div class="form-group full-width"><label for="status-filter">Estado</label><select id="status-filter" class="input"><option value="">Todos</option><option value="ACTIVO">Activo</option><option value="INACTIVO">Inactivo</option></select></div></div></div><div class="market-main"><div class="market-grid-header"><h2>Inventario</h2><span id="product-count"></span></div><div id="product-grid" class="market-grid"><div class="loading-spinner"></div></div></div></div>`;
+        try {
+            productsCache = await fetchProducts();
+            console.log(`Productos recibidos (${productsCache.length}) para Market.`);
+            document.getElementById('search-input')?.addEventListener('input', applyFilters);
+            document.getElementById('category-filter')?.addEventListener('change', applyFilters);
+            document.getElementById('stock-filter')?.addEventListener('change', applyFilters);
+            document.getElementById('status-filter')?.addEventListener('change', applyFilters);
+            applyFilters();
+            console.log("Vista Market configurada.");
+        } catch (error) { showError(document.getElementById('product-grid'), "Error cargando inventario", error); }
+    }
+    async function fetchProducts() {
+        console.log("Fetching productos...");
+        return await fetchAPI('/productos');
+    }
+    function applyFilters() {
+        console.log("Aplicando filtros Market...");
+        const search = document.getElementById('search-input')?.value.toLowerCase() || ''; const category = document.getElementById('category-filter')?.value || ''; const stockFilterValue = document.getElementById('stock-filter')?.value || ''; const statusFilterValue = document.getElementById('status-filter')?.value || '';
+        const grid = document.getElementById('product-grid'); const countSpan = document.getElementById('product-count');
+        if (!grid) { console.error("#product-grid no encontrado."); return; }
+        const filteredProducts = productsCache.filter(p => {
+            if (!p || typeof p.nombre !== 'string') return false;
+            const nameMatch = p.nombre.toLowerCase().includes(search) || (p.categoria && p.categoria.toLowerCase().includes(search));
+            const categoryMatch = !category || p.categoria === category;
+            let stockMatch = true; const stock = p.stockCantidad ?? 0; const minStock = p.stockMinimoAlerta ?? 0;
+            if (stockFilterValue === 'DISPONIBLE') stockMatch = stock > 0; else if (stockFilterValue === 'ALERTA') stockMatch = stock > 0 && minStock > 0 && stock <= minStock; else if (stockFilterValue === 'AGOTADO') stockMatch = stock <= 0;
+            let statusMatch = true;
+            if (statusFilterValue === 'ACTIVO') statusMatch = p.activo !== false; else if (statusFilterValue === 'INACTIVO') statusMatch = p.activo === false;
+            return nameMatch && categoryMatch && stockMatch && statusMatch;
+        });
+        console.log(`Productos filtrados: ${filteredProducts.length}`);
+        if (countSpan) countSpan.textContent = `(${filteredProducts.length} ${filteredProducts.length === 1 ? 'prod.' : 'prods.'})`;
+        renderProductGrid(filteredProducts);
+        console.log("Filtros Market aplicados.");
+    }
+    function renderProductGrid(products) {
+        const grid = document.getElementById('product-grid');
+        if (!grid) { console.error("#product-grid no encontrado."); return; }
+        console.log(`Renderizando ${products.length} productos en Market.`);
+        if (products.length === 0) { grid.innerHTML = '<p>No se encontraron productos.</p>'; return; }
+        const canEditOrDelete = userRoles.includes('ADMINISTRADOR') || userRoles.includes('EMPLEADO');
+        grid.innerHTML = products.map(p => {
+            if (!p || typeof p.nombre !== 'string') { console.warn("Prod. inválido:", p); return ''; }
+            const stock = p.stockCantidad ?? 0; const minStock = p.stockMinimoAlerta ?? 0; const isAgotado = stock <= 0; const stockAlert = !isAgotado && minStock > 0 && stock <= minStock; const stockClass = isAgotado ? 'stock-agotado' : (stockAlert ? 'stock-low' : 'stock-ok'); const stockText = isAgotado ? 'Agotado' : `Stock: ${stock} ${p.tipoMedida || 'Und.'}`; const isActive = p.activo !== false; const inactiveClass = !isActive ? 'inactive-product' : '';
+            const actionButtons = canEditOrDelete ? `<div class="product-actions"><button class="action-btn btn-edit" data-id="${p.id}" title="Editar"><i class="material-icons">edit</i></button><button class="action-btn btn-delete" data-id="${p.id}" title="Eliminar"><i class="material-icons">delete</i></button></div>` : '';
+            let icon = 'inventory_2'; if (p.categoria === 'SUPLEMENTO') icon = 'fitness_center'; else if (p.categoria === 'BEBIDA') icon = 'local_drink'; else if (p.categoria === 'SNACK') icon = 'fastfood'; else if (p.categoria === 'EQUIPO') icon = 'style';
+            return `<div class="product-card market-view ${stockClass} ${inactiveClass}" data-id="${p.id}">${!isActive ? '<span class="inactive-badge">INACTIVO</span>' : ''}<div class="product-image"><i class="material-icons product-icon">${icon}</i></div><div class="product-info"><h4 title="${p.nombre}">${p.nombre}</h4><p class="category">${p.categoria || 'General'}</p><p class="stock-info"><span>${stockText}</span></p><p class="product-price">Q${Number(p.precioVenta || 0).toFixed(2)}</p></div>${actionButtons}</div>`;
         }).join('');
     }
+    function showProductModal(data = null) { /* ... (código existente) ... */ }
+    async function handleProductFormSubmit(e) { /* ... (código existente) ... */ }
 
-    async function handleEdit(id, section) {
-        // Verificar permisos
-        if (!userRoles.includes('ADMINISTRADOR') && !userRoles.includes('EMPLEADO')) {
-             alert('No tienes permiso para editar.');
-             return;
-        }
+    // --- Lógica de Membresías (Planes) ---
+    function displayMembresias(planesAnaliticas) {
+        if (!contentArea) { console.error("[Membresias] contentArea no definido"); return; }
+        contentArea.innerHTML = '';
+        console.log(`Renderizando membresías con ${planesAnaliticas?.length || 0} planes.`);
+        if (!planesAnaliticas || planesAnaliticas.length === 0) { contentArea.innerHTML = '<p>No hay planes.</p>'; return; }
+        const gridWrapper = document.createElement('div'); gridWrapper.className = 'membership-center-wrapper';
+        const grid = document.createElement('div'); grid.className = 'membership-grid';
+        const canEditOrDelete = userRoles.includes('ADMINISTRADOR'); // Solo Admin
+        grid.innerHTML = planesAnaliticas.map(plan => {
+            const planId = plan.id ?? 'N/A'; const planNombre = plan.nombrePlan || plan.nombre || 'Plan Sin Nombre'; const planPrecio = plan.precio != null ? Number(plan.precio).toFixed(2) : 'N/A'; const planDuracion = plan.duracionDias ?? 'N/A'; const planDesc = plan.descripcion || 'Sin desc.'; const planActivo = plan.activo !== false; const totalClientes = plan.clientesActivos ?? 0; const planReglas = plan.reglasAcceso || 'N/A';
+            const actionButtons = canEditOrDelete ? `<div class="membership-card-footer"><button class="action-btn btn-edit" data-id="${planId}" title="Editar"><i class="material-icons">edit</i></button><button class="action-btn btn-delete" data-id="${planId}" title="Eliminar"><i class="material-icons">delete</i></button></div>` : '';
+            const inactiveClass = !planActivo ? 'inactive-plan' : '';
+            return `<div class="membership-card ${inactiveClass}">${!planActivo ? '<span class="inactive-badge">INACTIVO</span>' : ''}<div class="membership-card-header"><h3>${planNombre}</h3></div><div class="membership-card-body"><p class="price">Q${planPrecio}<span> / ${planDuracion} días</span></p><p class="description">${planDesc}</p><div class="plan-analytics"><div class="analytics-item"><i class="material-icons">person</i><p><strong>${totalClientes}</strong> Activos</p></div><div class="analytics-item" title="${planReglas}"><i class="material-icons">gavel</i><p>Reglas: ${planReglas.substring(0, 20)}${planReglas.length > 20 ? '...' : ''}</p></div></div></div>${actionButtons}</div>`;
+        }).join('');
+        gridWrapper.appendChild(grid); contentArea.appendChild(gridWrapper); console.log("Tarjetas membresías renderizadas.");
+    }
+    function showMembresiaModal(data = null) { /* ... (código existente) ... */ }
+    async function handleMembresiaFormSubmit(e) { /* ... (código existente) ... */ }
 
-        let endpoint;
-        if (section === 'membresias') endpoint = 'planes';
-        else if (section === 'administradores') endpoint = 'usuarios';
-        else endpoint = section; // clientes, empleados, productos
-
-        console.log(`Iniciando edición para ID ${id} en endpoint ${endpoint}`); // Log
-
+    // --- Lógica de Ventas (POS) ---
+    async function setupPOSInterface() {
+        console.log("Configurando POS...");
+        contentArea.innerHTML = `<div class="pos-container"><div class="product-grid-wrapper"><div class="pos-filters"><input type="text" id="pos-search" class="input" placeholder="Buscar producto..."></div><div class="product-grid"><div class="loading-spinner"></div></div></div><div class="cart-wrapper card"><h3>Carrito</h3><div class="cart-items"></div><div class="cart-summary"><div class="total"><span>Total:</span><span id="cart-total">Q0.00</span></div><button id="checkout-btn" class="btn-accent full-width" disabled>Finalizar Compra</button></div></div></div>`;
         try {
-            const response = await fetch(`${API_BASE_URL}/${endpoint}/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-            console.log(`Respuesta fetch para editar ${endpoint}/${id}: Status ${response.status}`); // Log status
-
-            if (!response.ok) {
-                 const errorText = await response.text();
-                 console.error(`Error ${response.status} al cargar datos para editar ${endpoint}/${id}: ${errorText}`); // Log error detallado
-                 throw new Error(`Error ${response.status}: ${errorText || 'No se pudo cargar la información'}`);
-            }
-
-            const data = await response.json();
-             console.log(`Datos recibidos para editar (${endpoint}/${id}):`, data); // Log datos recibidos
-
-            // Abrir el modal correspondiente
-            if (section === 'clientes' || section === 'empleados' || section === 'administradores') {
-                showPersonaModal(data, section);
-            } else if (section === 'membresias') {
-                showMembresiaModal(data);
-            } else if (section === 'productos') {
-                showProductModal(data);
-            } else if (section === 'pagos') {
-                alert('Funcionalidad de edición de pagos no implementada aún.');
-            }
-        } catch (error) {
-             console.error(`Error en handleEdit (${section}, ${id}):`, error);
-             // Mostrar mensaje más descriptivo al usuario
-             let userMessage = `Error al cargar datos para edición.`;
-             if (error.message.includes("403")) {
-                  userMessage += " Parece que no tienes permiso para acceder a esta información.";
-             } else if (error.message.includes("404")) {
-                  userMessage += " El registro no fue encontrado.";
-             } else {
-                  userMessage += " Intenta de nuevo más tarde.";
-             }
-             alert(`${userMessage} (Detalles en consola)`);
-        }
+            const allProducts = await fetchProducts();
+            productsCache = allProducts.filter(p => p.activo && p.stockCantidad > 0); // Filtrar para POS
+            renderPOSProductGrid(productsCache);
+            document.getElementById('checkout-btn')?.addEventListener('click', handleCheckout);
+            document.getElementById('pos-search')?.addEventListener('input', filterPOSProducts);
+            updateCartDisplay();
+            console.log("Interfaz POS configurada.");
+        } catch (error) { showError(contentArea.querySelector('.product-grid'), "Error cargando productos POS", error); }
     }
-
-    function showProductModal(data = null) {
-        const isEdit = data !== null;
-        modalTitle.textContent = isEdit ? `Editar Producto: ${data.nombre}` : 'Crear Nuevo Producto';
-         console.log(isEdit ? `Abriendo modal para editar producto ID ${data.id}` : "Abriendo modal para crear producto"); // Log
-
-        const defaults = {
-            id: null, nombre: '', categoria: 'SUPLEMENTO', tipoMedida: 'UNIDAD', scoopsPorEnvase: null,
-            precioVenta: '', stockCantidad: '', stockMinimoAlerta: 0, activo: true,
-            ...(isEdit ? data : {}) // Sobrescribir defaults con data si es edición
-        };
-
-        // Convertir null a string vacío para inputs numéricos opcionales
-        const scoopsValue = defaults.scoopsPorEnvase !== null ? defaults.scoopsPorEnvase : '';
-
-
-        // Solo Admin o Empleado pueden crear/editar
-        if (!userRoles.includes('ADMINISTRADOR') && !userRoles.includes('EMPLEADO')) {
-            alert("No tienes permisos para crear/editar productos.");
-            return;
-        }
-
-        modalBody.innerHTML = `
-        <form id="product-form" class="modal-form">
-            <input type="hidden" id="productId" value="${defaults.id || ''}">
-            <h4 class="form-title">Información Principal</h4>
-            <div class="form-grid">
-                <div class="form-group full-width"><label for="nombre">Nombre</label><input type="text" id="nombre" class="input" value="${defaults.nombre}" required></div>
-                <div class="form-group"><label for="categoria">Categoría</label>
-                    <select id="categoria" class="input">
-                        <option value="SUPLEMENTO" ${defaults.categoria === 'SUPLEMENTO' ? 'selected' : ''}>Suplemento</option>
-                        <option value="BEBIDA" ${defaults.categoria === 'BEBIDA' ? 'selected' : ''}>Bebida</option>
-                        <option value="SNACK" ${defaults.categoria === 'SNACK' ? 'selected' : ''}>Snack</option>
-                        <option value="EQUIPO" ${defaults.categoria === 'EQUIPO' ? 'selected' : ''}>Equipo</option>
-                    </select>
-                </div>
-                <div class="form-group"><label for="precioVenta">Precio Venta (Q)</label><input type="number" id="precioVenta" class="input" value="${defaults.precioVenta}" step="0.01" min="0" required></div>
-            </div>
-            <h4 class="form-title">Inventario y Medidas</h4>
-            <div class="form-grid">
-                <div class="form-group"><label for="stockCantidad">Stock Actual</label><input type="number" id="stockCantidad" class="input" value="${defaults.stockCantidad}" min="0" required></div>
-                <div class="form-group"><label for="stockMinimoAlerta">Stock Mínimo Alerta</label><input type="number" id="stockMinimoAlerta" class="input" value="${defaults.stockMinimoAlerta}" min="0"></div>
-                <div class="form-group"><label for="tipoMedida">Tipo Medida</label>
-                    <select id="tipoMedida" class="input">
-                        <option value="UNIDAD" ${defaults.tipoMedida === 'UNIDAD' ? 'selected' : ''}>Unidad (Botella, Barra)</option>
-                        <option value="ENVASE" ${defaults.tipoMedida === 'ENVASE' ? 'selected' : ''}>Envase (Proteína)</option>
-                        <option value="SCOOP" ${defaults.tipoMedida === 'SCOOP' ? 'selected' : ''}>Scoop/Porción</option>
-                    </select>
-                </div>
-                <div class="form-group"><label for="scoopsPorEnvase">Scoops/Porciones (si Envase)</label><input type="number" id="scoopsPorEnvase" class="input" value="${scoopsValue}" min="0" placeholder="Opcional"></div>
-            </div>
-            <div class="form-group full-width" style="margin-top: 1rem;">
-                <label><input type="checkbox" id="activo" ${defaults.activo ? 'checked' : ''}> Producto Activo (Disponible)</label>
-            </div>
-            <div class="modal-footer"><button type="submit" class="btn-accent">${isEdit ? 'Guardar Cambios' : 'Crear Producto'}</button></div>
-        </form>
-        `;
-        document.getElementById('product-form').addEventListener('submit', handleProductFormSubmit);
-        unifiedModal.style.display = 'flex';
+    function filterPOSProducts() {
+        const searchTerm = document.getElementById('pos-search')?.value.toLowerCase() || '';
+        console.log(`Filtrando POS: "${searchTerm}"`);
+        const filtered = productsCache.filter(p => ((p.nombre && p.nombre.toLowerCase().includes(searchTerm)) || (p.categoria && p.categoria.toLowerCase().includes(searchTerm))));
+        renderPOSProductGrid(filtered);
     }
-
-    async function handleProductFormSubmit(e) {
-        e.preventDefault();
-        const form = e.target;
-        const id = form.elements.productId.value;
-        const isEdit = id !== '';
-         console.log(isEdit ? `Guardando cambios para producto ID ${id}` : "Creando nuevo producto"); // Log
-
-        const body = {
-            nombre: form.elements.nombre.value.trim(),
-            categoria: form.elements.categoria.value,
-            precioVenta: parseFloat(form.elements.precioVenta.value),
-            stockCantidad: parseFloat(form.elements.stockCantidad.value),
-            stockMinimoAlerta: parseFloat(form.elements.stockMinimoAlerta.value) || 0,
-            tipoMedida: form.elements.tipoMedida.value,
-            scoopsPorEnvase: form.elements.scoopsPorEnvase.value ? parseInt(form.elements.scoopsPorEnvase.value) : null,
-            activo: form.elements.activo.checked
-        };
-
-        // Validación básica
-         if (!body.nombre) { alert("El nombre del producto es obligatorio."); return; }
-         if (isNaN(body.precioVenta) || body.precioVenta < 0) { alert("El precio de venta debe ser un número positivo."); return; }
-         if (isNaN(body.stockCantidad) || body.stockCantidad < 0) { alert("El stock actual debe ser un número positivo."); return; }
-         if (body.scoopsPorEnvase !== null && (isNaN(body.scoopsPorEnvase) || body.scoopsPorEnvase < 0)) {
-              alert("Scoops/Porciones debe ser un número positivo si se ingresa."); return;
-         }
-
-
-        const method = isEdit ? 'PUT' : 'POST';
-        const url = isEdit ? `${API_BASE_URL}/productos/${id}` : `${API_BASE_URL}/productos`;
-         console.log(`Enviando ${method} a ${url} con body:`, body); // Log
-
+    function renderPOSProductGrid(products) {
+        const grid = contentArea?.querySelector('.product-grid');
+        if (!grid) { console.error("Grid POS no encontrado."); return; }
+        console.log(`Renderizando ${products.length} productos en POS.`);
+        if (products.length === 0) { grid.innerHTML = '<p>No se encontraron productos.</p>'; return; }
+        grid.innerHTML = products.map(p => {
+            let icon = 'inventory_2'; if (p.categoria === 'SUPLEMENTO') icon = 'fitness_center'; else if (p.categoria === 'BEBIDA') icon = 'local_drink'; else if (p.categoria === 'SNACK') icon = 'fastfood'; else if (p.categoria === 'EQUIPO') icon = 'style';
+            return `<div class="product-card pos-view" data-id="${p.id}" title="Añadir ${p.nombre || 'Producto'}"><div class="product-image"><i class="material-icons product-icon">${icon}</i></div><div class="product-info"><h4>${p.nombre || 'N/A'}</h4><p class="product-price">Q${Number(p.precioVenta || 0).toFixed(2)}</p><p class="stock-info pos">Stock: ${p.stockCantidad ?? 'N/A'}</p></div></div>`;
+        }).join('');
+    }
+    function addToCart(product) {
+        if (!product || product.stockCantidad <= 0) { alert(`"${product?.nombre || 'Producto'}" sin stock.`); return; }
+        const existingItem = cart.find(item => item.id === product.id);
+        if (existingItem) {
+            if (existingItem.cantidad >= product.stockCantidad) { alert(`No hay más stock de "${product.nombre}".`); return; }
+            existingItem.cantidad++; console.log(`Cant ${product.nombre} -> ${existingItem.cantidad}`);
+        } else { cart.push({ ...product, cantidad: 1 }); console.log(`${product.nombre} añadido.`); }
+        updateCartDisplay();
+    }
+    function updateCartDisplay() {
+        const cartItemsContainer = contentArea?.querySelector('.cart-items');
+        if (!cartItemsContainer) return;
+        console.log("Actualizando carrito...");
+        if (cart.length === 0) cartItemsContainer.innerHTML = '<p class="empty-cart">Carrito vacío.</p>';
+        else cartItemsContainer.innerHTML = cart.map(item => `<div class="cart-item"><div class="cart-item-details"><h5>${item.nombre || 'N/A'}</h5><div class="quantity-controls"><button data-id="${item.id}" class="quantity-decrease" title="-1">-</button><span>${item.cantidad}</span><button data-id="${item.id}" class="quantity-increase" title="+1">+</button></div></div><span class="cart-item-price">Q${(Number(item.precioVenta || 0) * item.cantidad).toFixed(2)}</span></div>`).join('');
+        const total = cart.reduce((sum, item) => sum + (Number(item.precioVenta || 0) * item.cantidad), 0);
+        const cartTotalSpan = contentArea?.querySelector('#cart-total');
+        if (cartTotalSpan) cartTotalSpan.textContent = `Q${total.toFixed(2)}`;
+        console.log(`Total carrito: Q${total.toFixed(2)}`);
+        if (cart.length > 0) {
+            cartItemsContainer.querySelectorAll('.quantity-decrease').forEach(b => b.addEventListener('click', () => updateQuantity(b.dataset.id, -1)));
+            cartItemsContainer.querySelectorAll('.quantity-increase').forEach(b => b.addEventListener('click', () => updateQuantity(b.dataset.id, 1)));
+        }
+        const checkoutBtn = document.getElementById('checkout-btn');
+        if (checkoutBtn) checkoutBtn.disabled = cart.length === 0;
+    }
+    function updateQuantity(productId, change) {
+        console.log(`Actualizando cant. ID ${productId}, cambio: ${change}`);
+        const itemIndex = cart.findIndex(i => i.id == productId);
+        if (itemIndex === -1) return;
+        const item = cart[itemIndex];
+        const productInCache = productsCache.find(p => p.id == productId); // Cache filtrado de POS
+        if (change > 0 && productInCache && (item.cantidad + change > productInCache.stockCantidad)) {
+            alert(`No hay más stock de "${item.nombre}".`); return;
+        }
+        item.cantidad += change;
+        if (item.cantidad <= 0) { console.log(`Quitando ${item.nombre}.`); cart.splice(itemIndex, 1); }
+        else console.log(`Nueva cant ${item.nombre}: ${item.cantidad}`);
+        updateCartDisplay();
+    }
+    async function handleCheckout() {
+        if (cart.length === 0) { alert('Carrito vacío.'); return; }
+        const checkoutBtn = document.getElementById('checkout-btn');
+        checkoutBtn.disabled = true; checkoutBtn.textContent = 'Procesando...';
+        console.log("Iniciando checkout...");
+        let usuarioIdVenta = loggedInUserId ? parseInt(loggedInUserId) : null;
+        if (!usuarioIdVenta) console.warn("ID usuario venta no encontrado.");
+        const totalVenta = cart.reduce((sum, item) => sum + (Number(item.precioVenta || 0) * item.cantidad), 0);
+        const detallesVenta = cart.map(item => ({ productoId: item.id, cantidad: item.cantidad, precioUnitario: item.precioVenta, subtotal: Number(item.precioVenta || 0) * item.cantidad }));
+        const ventaRequest = { clienteId: null, usuarioId: usuarioIdVenta, detalles: detallesVenta, total: totalVenta, notas: "Venta POS" };
+        console.log("Enviando venta:", ventaRequest);
         try {
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(body)
-            });
-             console.log(`Respuesta ${method} ${url}: Status ${response.status}`); // Log status
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                 console.error(`Error ${response.status} al guardar producto: ${errorText}`); // Log error
-                throw new Error(errorText || `Error ${response.status}`);
-            }
-
-            alert(`Producto ${isEdit ? 'actualizado' : 'creado'} con éxito.`);
-            closeModal();
-            loadContent('productos'); // Recargar la sección de productos
-        } catch (error) {
-             console.error(`Error al guardar producto: `, error);
-            alert(`Error al guardar el producto: ${error.message}`);
-        }
+            await fetchAPI('/ventas', { method: 'POST', body: ventaRequest }); // Usa fetchAPI
+            alert('Venta realizada!'); cart = []; updateCartDisplay();
+            console.log("Recargando productos post-venta...");
+            const updatedProducts = await fetchProducts(); // Recargar todos
+            productsCache = updatedProducts.filter(p => p.activo && p.stockCantidad > 0); // Filtrar de nuevo para POS
+            renderPOSProductGrid(productsCache); // Actualizar grid POS
+        } catch (error) { showError(null, "Error al finalizar venta", error); /* Mostrar error en modal o toast */ } // Usa showError
+        finally { checkoutBtn.disabled = cart.length === 0; checkoutBtn.textContent = 'Finalizar Compra'; }
     }
-    // --- CORE LOGIC ---
-    async function loadContent(section) {
-        console.log(`Iniciando carga de contenido para: ${section}`); // Log
-        // Ajustar título visible
-         let titleText = section.charAt(0).toUpperCase() + section.slice(1);
-         if (section === 'membresias') titleText = 'Planes de Membresía';
-         if (section === 'productos') titleText = 'Gestión de Inventario';
-         if (section === 'ventas') titleText = 'Punto de Venta (POS)';
-         if (section === 'pagos') titleText = 'Gestión de Pagos';
-         if (section === 'administradores') titleText = 'Gestión de Administradores';
-        sectionTitle.textContent = titleText;
-
-        contentArea.innerHTML = '<div class="loading-spinner"></div>'; // Indicador de carga
-        // Mostrar FAB solo si es ADMIN y NO está en Ventas o Pagos
-        fab.style.display = (userRoles.includes('ADMINISTRADOR') && section !== 'ventas' && section !== 'pagos') ? 'block' : 'none';
-
-        try {
-             if (section === 'ventas') {
-                  await setupPOSInterface();
-             } else if (section === 'pagos') {
-                  await loadPagosSection();
-             } else if (section === 'productos') {
-                  await setupProductMarket(); // Carga la vista de gestión de inventario
-             } else if (section === 'membresias') {
-                  const response = await fetch(`${API_BASE_URL}/planes/analiticas`, { headers: { 'Authorization': `Bearer ${token}` } });
-                  if (!response.ok) throw new Error(`Error ${response.status}: No se pudo cargar análisis de planes.`);
-                  displayMembresias(await response.json());
-             } else if (section === 'administradores') {
-                 await loadAdministradores();
-             } else { // Clientes o Empleados
-                  const endpoint = section;
-                  const response = await fetch(`${API_BASE_URL}/${endpoint}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                  if (!response.ok) throw new Error(`Error ${response.status}: No se pudo cargar la lista de ${endpoint}.`);
-                  displayTable(await response.json(), section);
-             }
-             console.log(`Contenido cargado exitosamente para: ${section}`); // Log éxito
-        } catch (error) {
-             console.error(`Error al cargar la sección ${section}:`, error);
-             let userMessage = `Error al cargar los datos de ${titleText}.`;
-             if (error.message.includes("403")) {
-                  userMessage += " Parece que no tienes permiso.";
-             } else if (error.message.includes("Failed to fetch")) {
-                   userMessage += " No se pudo conectar con el servidor.";
-             } else {
-                  userMessage += " Intenta de nuevo más tarde.";
-             }
-             contentArea.innerHTML = `<p class="error">${userMessage} (Revisa la consola para detalles técnicos)</p>`;
-        }
-    }
-
-     // Cargar Administradores
-     async function loadAdministradores() {
-          console.log("Cargando administradores..."); // Log
-          try {
-               const response = await fetch(`${API_BASE_URL}/usuarios`, { headers: { 'Authorization': `Bearer ${token}` } });
-               console.log(`Respuesta fetch /usuarios: Status ${response.status}`); // Log status
-
-               if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error(`Error ${response.status} al cargar usuarios: ${errorText}`); // Log error
-                    throw new Error(`Error ${response.status}: ${errorText || 'No se pudo cargar la lista de usuarios.'}`);
-               }
-
-               const usuarios = await response.json();
-                console.log("Usuarios recibidos:", usuarios); // Log datos
-
-               // Filtrar por rol 'ADMINISTRADOR'
-               const administradores = usuarios.filter(user =>
-                    Array.isArray(user.roles) && user.roles.some(rol => rol && rol.nombre === 'ADMINISTRADOR')
-               );
-                console.log("Administradores filtrados:", administradores); // Log filtrados
-
-               displayAdministradoresTable(administradores);
-          } catch (error) {
-               console.error("Error en loadAdministradores:", error); // Log error específico
-               contentArea.innerHTML = `<p class="error">Error al cargar administradores: ${error.message}</p>`;
-          }
-     }
 
      // Mostrar Tabla de Administradores
      function displayAdministradoresTable(admins) {

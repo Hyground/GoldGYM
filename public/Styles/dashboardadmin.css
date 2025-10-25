@@ -319,3 +319,134 @@
     /* Si el modal-panel tiene scroll, este div no necesita un alto fijo, solo padding */
     padding-bottom: 2rem; 
 }
+
+/* Estilo de los inputs */
+.input {
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 8px; /* Consider using variables if defined in design-system.css */
+    background-color: var(--bg-primary); /* Use CSS variables defined elsewhere */
+    border: 1px solid var(--border-color); /* Use CSS variables */
+    border-radius: 10px; /* Consistent border radius */
+    color: var(--text-primary); /* Use CSS variables */
+    font-size: 1rem;
+    box-sizing: border-box; /* Ensures padding doesn't affect total width */
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed), background-color var(--transition-speed); /* Use CSS variables */
+}
+
+/* Estilo de foco para los inputs */
+.input:focus {
+    outline: none;
+    border-color: var(--color-accent); /* Use CSS variables */
+    box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.3); /* Adjust color if needed */
+}
+
+/* Estilo del botón de acento */
+.btn-accent {
+    background-color: var(--color-accent); /* Use CSS variables */
+    color: #1c1c1e; /* Consider using a CSS variable for contrast text */
+    border: none;
+    border-radius: 10px; /* Consistent border radius */
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-speed); /* Use CSS variables */
+}
+
+.btn-accent:hover {
+    background-color: var(--color-accent-hover); /* Use CSS variables */
+}
+
+/* --- ESTILOS PARA TABLAS (Aplicable a Clientes, Empleados, Administradores) --- */
+
+.content-table {
+    width: 100%;
+    border-collapse: collapse; /* Bordes unidos */
+    margin-top: 1.5rem;
+    background-color: var(--bg-card); /* Fondo de la tabla */
+    border-radius: var(--border-radius);
+    overflow: hidden; /* Para aplicar border-radius a la tabla */
+    box-shadow: var(--shadow-soft);
+}
+
+.content-table th,
+.content-table td {
+    padding: 12px 15px; /* Espaciado interno */
+    text-align: left;
+    border-bottom: 1px solid var(--border-color); /* Línea divisoria entre filas */
+    vertical-align: middle; /* Alinear verticalmente al centro */
+}
+
+.content-table th {
+    background-color: var(--bg-secondary); /* Fondo cabecera */
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.5px;
+}
+
+/* Quitar borde inferior de la última fila */
+.content-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Estilo hover para filas */
+.content-table tbody tr:hover {
+    background-color: var(--bg-secondary-hover);
+}
+
+/* Estilos para badges de estado (Activo/Inactivo) */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px; /* Más redondeado */
+    font-size: 0.8em;
+    font-weight: 600;
+    display: inline-block; /* Para que el padding funcione bien */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-activo {
+    background-color: rgba(50, 215, 75, 0.2); /* Verde suave */
+    color: #32D74B; /* Verde brillante */
+}
+
+.status-inactivo {
+    background-color: rgba(255, 69, 58, 0.15); /* Rojo suave */
+    color: #FF453A; /* Rojo brillante */
+}
+
+/* Estilos para la celda de acciones */
+.action-cell {
+    text-align: right; /* Alinear botones a la derecha */
+    white-space: nowrap; /* Evitar que los botones se envuelvan */
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 8px; /* Espacio entre botones */
+    border-radius: 50%; /* Botones circulares */
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    display: inline-flex; /* Para centrar icono */
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn i.material-icons {
+    font-size: 20px; /* Tamaño del icono */
+}
+
+.action-btn:hover {
+    background-color: var(--bg-secondary-hover);
+    color: var(--color-accent);
+}
+
+.btn-delete:hover {
+    color: #FF453A; /* Rojo al hacer hover en eliminar */
+}
