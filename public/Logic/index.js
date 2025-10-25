@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (roles.includes('ADMINISTRADOR')) {
             window.location.href = 'dashboardadmin.html';
         } else if (roles.includes('EMPLEADO')) {
-            window.location.href = 'dashboardempleado.html';
+            window.location.href = 'public/dashboardempleado.html';
         } else if (roles.includes('CLIENTE')) {
             window.location.href = 'dashboardcliente.html';
         } else {
