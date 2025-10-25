@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageElement = document.getElementById('message');
     const submitButton = loginForm.querySelector('button[type="submit"]');
 
-    const API_LOGIN_URL = 'https://goldgymapi-3.onrender.com/api/auth/login';
+    const API_LOGIN_URL = 'http://localhost:8080/api/auth/login';
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
