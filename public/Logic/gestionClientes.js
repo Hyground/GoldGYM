@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const API_URL = "http://localhost:8080/api/clientes";
+    const API_URL = "https://goldgymapi-3.onrender.com/api";
     const tablaBody = document.querySelector("tbody");
     const proximosDiv = document.querySelector("#vencimientos");
     const buscarInput = document.querySelector("#filtroNombre");

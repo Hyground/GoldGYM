@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeDeleteModalBtn = document.getElementById('close-delete-modal-btn');
 
     // --- Estado y Constantes (AHORA DENTRO DEL SCOPE) ---
-    const API_BASE_URL = 'http://localhost:8080/api'; // API Local
+    const API_BASE_URL = 'https://goldgymapi-3.onrender.com/api'; // API Local
     const token = sessionStorage.getItem('authToken');
     const username = sessionStorage.getItem('username');
     // *** IMPORTANTE: Asegúrate que tu index.js guarde 'userId' en sessionStorage al hacer login ***
@@ -62,7 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializeEventListeners() {
         if (themeToggleButton) themeToggleButton.addEventListener('click', () => typeof toggleTheme === 'function' && toggleTheme());
-        if (logoutButton) logoutButton.addEventListener('click', (e) => { e.preventDefault(); sessionStorage.clear(); window.location.href = '/index.html'; }); // Ruta absoluta
+        if (logoutButton) logoutButton.addEventListener('click', (e) => { 
+    e.preventDefault(); 
+    sessionStorage.clear(); 
+    
+    // 📢 CORRECCIÓN: SUBIR UN NIVEL para encontrar index.html
+    window.location.href = '../index.html';
+}); // Ruta absoluta
         navLinks.forEach(link => link.addEventListener('click', handleNavClick));
         if (fab) fab.addEventListener('click', handleFabClick);
         // Modales
