@@ -1,8 +1,8 @@
 // 🌟 Dashboard Empleado - Conexión total con API de GoldGYM + Modo offline + Ping preventivo 🌟
 document.addEventListener("DOMContentLoaded", async () => {
     // 🔗 Endpoints principales
-    const apiResumen = "http://localhost:8080/api/dashboard/resumen";
-    const apiActividad = "http://localhost:8080/api/dashboard/actividad";
+    const apiResumen = "https://goldgymapi-3.onrender.com/api";
+    const apiActividad = "https://goldgymapi-3.onrender.com/api";
 
     // 🔹 Elementos del DOM
     const clientesActivosEl = document.getElementById("clientesActivos");
