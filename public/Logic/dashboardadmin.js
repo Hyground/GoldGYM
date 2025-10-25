@@ -1598,40 +1598,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- GENERAL MODAL & DELETE LOGIC ---
-    function closeModal() {
-         if (unifiedModal) unifiedModal.style.display = 'none';
-         if (modalBody) modalBody.innerHTML=''; // Limpiar contenido para evitar listeners duplicados
-         console.log("Modal unificado cerrado."); // Log
-    }
-
+    // --- Lógica General Modales y Eliminación ---
+    function closeModal() { if (unifiedModal) unifiedModal.style.display = 'none'; if (modalBody) modalBody.innerHTML=''; console.log("Modal cerrado."); }
     function mostrarModalEliminacion(id, nombre, section) {
-         console.log(`Abriendo modal de eliminación para ID ${id}, Nombre ${nombre}, Sección ${section}`); // Log
-         if (!userRoles.includes('ADMINISTRADOR')) {
-              alert('No tienes permiso para eliminar.');
-              return;
-         }
-
+        console.log(`Abriendo modal eliminación: ID=${id}, Nombre=${nombre}, Sección=${section}`);
+        if (!userRoles.includes('ADMINISTRADOR')) { alert('No tienes permiso.'); return; }
         currentIdToDelete = id;
-         if (section === 'membresias') currentSectionForDelete = 'planes';
-         else if (section === 'administradores') currentSectionForDelete = 'usuarios';
-         else currentSectionForDelete = section; // clientes, empleados, productos
-
-         // Evitar eliminar el propio usuario admin? (Opcional, requiere saber el ID del usuario logueado)
-         // const loggedInUserId = ... // Necesitaríamos guardar el ID del usuario al loguear
-         // if (currentSectionForDelete === 'usuarios' && currentIdToDelete == loggedInUserId) {
-         //    alert("No puedes eliminar tu propio usuario administrador.");
-         //    return;
-         // }
-
-
-        deleteModalText.innerHTML = `¿Estás seguro de que quieres eliminar <strong>${nombre} (ID: ${id})</strong>? Esta acción no se puede deshacer.`;
-        deleteModal.style.display = 'flex';
+        if (section === 'membresias') currentSectionForDelete = 'planes';
+        else if (section === 'administradores') currentSectionForDelete = 'usuarios';
+        else currentSectionForDelete = section;
+        if (currentSectionForDelete === 'usuarios' && loggedInUserId && currentIdToDelete == loggedInUserId) {
+             alert("No puedes eliminar tu propio usuario."); return;
+        }
+        if(deleteModalText) deleteModalText.innerHTML = `¿Eliminar <strong>${nombre} (ID: ${id})</strong>? Acción irreversible.`;
+        if(deleteModal) deleteModal.style.display = 'flex';
     }
-
-    function cerrarModalEliminacion() {
-         if (deleteModal) deleteModal.style.display = 'none';
-         console.log("Modal de eliminación cerrado."); // Log
-     }
+    function cerrarModalEliminacion() { if (deleteModal) deleteModal.style.display = 'none'; console.log("Modal eliminación cerrado."); }
+    async function confirmarEliminacion() {
+        console.log(`Confirmando eliminación: ID=${currentIdToDelete}, Endpoint=${currentSectionForDelete}`);
+        if (currentIdToDelete && currentSectionForDelete) {
+            try {
+                await fetchAPI(`/${currentSectionForDelete}/${currentIdToDelete}`, { method: 'DELETE' }); // Usa fetchAPI
+                alert(`Registro eliminado.`);
+                let sectionToReload = currentSectionForDelete;
+                if (currentSectionForDelete === 'planes') sectionToReload = 'membresias';
+                if (currentSectionForDelete === 'usuarios') sectionToReload = 'administradores';
+                loadContent(sectionToReload);
+            } catch (error) { showError(null, "Error al eliminar", error); /* Mostrar error en modal o toast */ }
+        } else console.warn("Confirmar eliminación sin ID/Sección.");
+        cerrarModalEliminacion();
+    }
 
     async function confirmarEliminacion() {
         console.log(`Confirmando eliminación para ID ${currentIdToDelete}, Endpoint: ${currentSectionForDelete}`); // Log
@@ -1904,6 +1900,53 @@ document.addEventListener('DOMContentLoaded', () => {
              // Reactivar botón independientemente del resultado
              checkoutBtn.disabled = false;
              checkoutBtn.textContent = 'Finalizar Compra';
+        }
+    }
+
+    // --- Helpers ---
+    function formatDisplayDate(dateInput) {
+        if (!dateInput) return 'N/A';
+        try {
+            if (typeof dateInput === 'object' && dateInput.year) return `${String(dateInput.dayOfMonth).padStart(2, '0')}/${String(dateInput.monthValue).padStart(2, '0')}/${dateInput.year}`;
+            if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateInput)) return new Date(dateInput + 'T00:00:00Z').toLocaleDateString('es-GT'); // Asumir UTC
+            const date = new Date(dateInput);
+            return isNaN(date.getTime()) ? 'Fecha Inv.' : date.toLocaleDateString('es-GT');
+        } catch (e) { console.warn("Error formato display date:", dateInput, e); return 'Fecha Inv.'; }
+    }
+    const formatInputDate = (dateInput) => {
+        if (!dateInput) return '';
+        try {
+            if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateInput)) return dateInput.split('T')[0];
+            if (typeof dateInput === 'object' && dateInput.year) return `${dateInput.year}-${String(dateInput.monthValue).padStart(2, '0')}-${String(dateInput.dayOfMonth).padStart(2, '0')}`;
+            const date = new Date(dateInput); if (isNaN(date.getTime())) return '';
+            const year = date.getFullYear(); const month = String(date.getMonth() + 1).padStart(2, '0'); const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        } catch (e) { console.warn("Error formato input date:", dateInput, e); return ''; }
+    };
+    async function findAndFillAssociatedUser(personaId) { /* ... (código existente) ... */ }
+    function updateSpecificFieldsOnCreate(selectedRole = null) { /* ... (código existente) ... */ }
+    function updateSpecificFieldsOnEdit(section, fechaInicio, salario, fechaContratacion) { /* ... (código existente) ... */ }
+
+    // Función unificada para mostrar errores
+    function showError(container, message, errorDetails) {
+        console.error(message, errorDetails); // Log detallado en consola
+        let userMessage = `${message}.`; // Mensaje base para el usuario
+        // Añadir detalles comunes si existen
+        if (errorDetails) {
+            if (errorDetails.status === 403) userMessage += " No tienes permiso.";
+            else if (errorDetails.status === 404) userMessage += " No encontrado.";
+            else if (errorDetails.status === 500) userMessage += " Error interno del servidor.";
+            else if (errorDetails.message?.includes("NetworkError") || errorDetails.message?.includes("fetch")) userMessage = "Error de red al conectar con la API.";
+            else userMessage += ` Detalles: ${errorDetails.message || 'Error desconocido'}`;
+        } else {
+             userMessage += " Error inesperado.";
+        }
+
+        // Mostrar en el contenedor principal si se proporciona, si no, usar alert
+        if (container && container instanceof HTMLElement) {
+            container.innerHTML = `<p class="error">${userMessage} (Revisa la consola)</p>`;
+        } else {
+            alert(userMessage);
         }
     }
 
