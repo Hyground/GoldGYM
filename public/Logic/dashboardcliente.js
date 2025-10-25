@@ -28,18 +28,28 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
 
-    // Lógica para el logout y la navegación estática
+    // --- UTILITIES ---
+    function getSectionTitle(section) {
+        const titles = { perfil: 'Mi Perfil', membresia: 'Mi Membresía', pagos: 'Mis Pagos', tienda: 'Tienda' };
+        return titles[section] || 'Dashboard';
+    }
+
+    // --- INICIALIZACIÓN ---
     const username = sessionStorage.getItem('username') || 'Cliente Demo';
     usernameDisplay.textContent = username;
     
+    // Asignar listeners
     logoutButton.addEventListener('click', (e) => {
         e.preventDefault();
         sessionStorage.clear();
         window.location.href = 'index.html';
     });
     navLinks.forEach(link => link.addEventListener('click', handleNavClick));
+    
+    // Carga inicial
     loadContent('perfil');
 
+    // --- MANEJADORES DE EVENTOS ---
     function handleNavClick(e) {
         e.preventDefault();
         navLinks.forEach(l => l.classList.remove('active'));
@@ -69,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Funciones de renderizado
+    // --- FUNCIONES DE RENDERIZADO ---
     function displayMiPerfil(perfil) {
         contentArea.innerHTML = `
             <div class="card profile-card">
@@ -86,11 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayMiMembresia(membresia) {
+        // La clase .membership-card-active está en dashboardcliente.css
+        const estadoClase = membresia.estadoPago.toLowerCase(); // ACTIVO -> activo
+        
         contentArea.innerHTML = `
             <div class="card membership-card-active">
                 <div class="membership-card-header">
                     <h3>Membresía Activa</h3>
-                    <span class="status-badge status-verde">${membresia.estadoPago}</span>
+                    <span class="status-badge status-${estadoClase}">${membresia.estadoPago}</span>
                 </div>
                 <div class="membership-card-body">
                     <p><strong>Tipo de Plan:</strong> ${membresia.tipoPlan}</p>
@@ -118,14 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${pagos.map(p => `
+                        ${pagos.map(p => {
+                            const statusClase = p.estado.toLowerCase() === 'pagado' ? 'activo' : 'inactivo';
+                            return `
                             <tr>
                                 <td>${p.id}</td>
                                 <td>$${p.monto.toFixed(2)}</td>
                                 <td>${p.metodo}</td>
                                 <td>${new Date(p.fechaPago).toLocaleDateString()}</td>
-                                <td><span class="status-badge status-verde">${p.estado}</span></td>
-                            </tr>`).join('')}
+                                <td><span class="status-badge status-${statusClase}">${p.estado}</span></td>
+                            </tr>`
+                        }).join('')}
                     </tbody>
                 </table>
             </div>`;
@@ -145,10 +161,5 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>`).join('')}
                 </div>
             </div>`;
-    }
-    
-    function getSectionTitle(section) {
-        const titles = { perfil: 'Mi Perfil', membresia: 'Mi Membresía', pagos: 'Mis Pagos', tienda: 'Tienda' };
-        return titles[section] || 'Dashboard';
     }
 });
