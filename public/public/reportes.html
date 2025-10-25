@@ -34,6 +34,12 @@
       padding: 0;
     }
 
+    .menu a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
     .menu li {
       padding: 14px 25px;
       cursor: pointer;
@@ -42,7 +48,8 @@
     }
 
     .menu li:hover,
-    .menu li.active {
+    .menu li.active,
+    .menu a:hover {
       background-color: #1b2236;
       color: #d1a84a;
     }
@@ -248,17 +255,22 @@
   <div>
     <h2>Gold GYM</h2>
     <ul class="menu">
-      <li>Dashboard</li>
-      <li>Gestión de Clientes</li>
-      <li>Punto de Venta</li>
-      <li class="active">Reportes</li>
+      <li><a href="dashboardEmpleado.html">Dashboard</a></li>
+      <li><a href="gestionClientes.html">Gestión de Clientes</a></li>
+      <li><a href="puntoVenta.html">Punto de Venta</a></li>
+      <li class="active"><a href="reportes.html">Reportes</a></li>
     </ul>
   </div>
-  <div class="logout">Cerrar sesión</div>
+  <div class="logout" onclick="window.location.href='index.html'">Cerrar sesión</div>
 </aside>
 
 <!-- MAIN -->
 <main>
+  <div style="text-align:right; margin-bottom:15px;">
+    <a href="dashboardEmpleado.html" style="background-color:#2a3550; color:#eee; padding:6px 12px; border-radius:6px; text-decoration:none; margin-right:6px;">Volver al Dashboard</a>
+    <a href="index.html" style="background-color:#472b7d; color:#eee; padding:6px 12px; border-radius:6px; text-decoration:none;">Cerrar sesión</a>
+  </div>
+
   <h1>Panel Empleado</h1>
   <p class="subtitle">Vista simplificada de actividades del día</p>
 
