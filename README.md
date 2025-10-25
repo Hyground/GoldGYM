@@ -9,7 +9,7 @@ Este repositorio contiene el código fuente del panel de control web (`Dashboard
 | Entorno | URL |
 | :--- | :--- |
 | **Frontend Desplegado** | **`https://goldgymaguacatan.web.app/`** |
-| **API Backend** | `https://goldgymapi-3.onrender.com/api` |
+| **API Backend** | `https://github.com/Hyground/GoldGYMAPI` |
 
 ---
 
